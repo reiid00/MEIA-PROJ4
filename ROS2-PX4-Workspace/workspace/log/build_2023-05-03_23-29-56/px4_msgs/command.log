@@ -1,0 +1,6 @@
+Invoking command in '/home/vascor/MEIA-PROJ4/build/px4_msgs': CMAKE_PREFIX_PATH=/opt/ros/foxy /usr/bin/cmake /home/vascor/MEIA-PROJ4/ROS2-PX4-Workspace/px4_msgs -DCMAKE_INSTALL_PREFIX=/home/vascor/MEIA-PROJ4/install/px4_msgs
+Invoked command in '/home/vascor/MEIA-PROJ4/build/px4_msgs' returned '0': CMAKE_PREFIX_PATH=/opt/ros/foxy /usr/bin/cmake /home/vascor/MEIA-PROJ4/ROS2-PX4-Workspace/px4_msgs -DCMAKE_INSTALL_PREFIX=/home/vascor/MEIA-PROJ4/install/px4_msgs
+Invoking command in '/home/vascor/MEIA-PROJ4/build/px4_msgs': CMAKE_PREFIX_PATH=/opt/ros/foxy /usr/bin/cmake --build /home/vascor/MEIA-PROJ4/build/px4_msgs -- -j12 -l12
+Invoked command in '/home/vascor/MEIA-PROJ4/build/px4_msgs' returned '0': CMAKE_PREFIX_PATH=/opt/ros/foxy /usr/bin/cmake --build /home/vascor/MEIA-PROJ4/build/px4_msgs -- -j12 -l12
+Invoking command in '/home/vascor/MEIA-PROJ4/build/px4_msgs': CMAKE_PREFIX_PATH=/opt/ros/foxy /usr/bin/cmake --install /home/vascor/MEIA-PROJ4/build/px4_msgs
+Invoked command in '/home/vascor/MEIA-PROJ4/build/px4_msgs' returned '0': CMAKE_PREFIX_PATH=/opt/ros/foxy /usr/bin/cmake --install /home/vascor/MEIA-PROJ4/build/px4_msgs
