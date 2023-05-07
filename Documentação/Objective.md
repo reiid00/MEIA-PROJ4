@@ -2,9 +2,9 @@
 
 The current trend in the delivery industry has seen a rise in the use of couriers to deliver products, including food and retail items. The pandemic has accelerated this trend, as more people prefer to stay at home, increasing the need for delivery services. However, traditional delivery methods have their limitations, such as long delivery times, pollution from non-electric vehicles, traffic, and high costs, including delivery fees.
 
-# How it would work 
-
 The idea proposed is to incorporate a system of autonomous drones coordinated among themselves, without the need for an operator to control them, for the delivery of various services. This system can be applied to deliveries of pharmaceutical products, retail store products, including supermarkets, restaurants, and more. The drones are electric, which makes them much less polluting than traditional delivery vehicles, and are faster because they can bypass the limitations imposed by land routes, allowing them to make more deliveries in the same amount of time. Additionally, they can operate 24/7 autonomously, which can be a critical factor for some deliveries, such as pharmaceuticals and food.
+
+# How it would work 
 
 In terms of the multi-agent system, each drone can be thought of as an agent, with a traffic control station responsible for managing their routes, optimizing them, and avoiding collisions, similar to air traffic control for airplanes, but at lower altitudes. The traffic control station can have one or more agents, possibly separated by zones, with bidirectional communication between the drones and the station. The drones would actively send information to the station about their current delivery status, location, etc., and the station would communicate the routes they need to follow, as well as any necessary adjustments to optimize the routes or avoid collisions.
 
