@@ -1,10 +1,10 @@
-<mxfile host="app.diagrams.net" modified="2023-05-08T18:11:29.948Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36" etag="VbJyPrVklyrx0rOEyHDn" version="21.2.4" type="device">
+<mxfile host="app.diagrams.net" modified="2023-05-08T18:14:14.326Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36" etag="FqzXiBeGEIS3ASmOU_WR" version="21.2.4" type="device">
   <diagram name="Page-1" id="17BwZoJ1Gh5FCuWuccQb">
     <mxGraphModel dx="1050" dy="541" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
-        <mxCell id="Pf5CJ0JvECbctHs7dRIL-7" value="Geographic Area (Porto/Lisbon)" style="swimlane;startSize=0;spacingTop=-20;swimlaneFillColor=none;" vertex="1" parent="1">
+        <mxCell id="Pf5CJ0JvECbctHs7dRIL-7" value="Geographical Area (Porto/Lisbon)" style="swimlane;startSize=0;spacingTop=-20;swimlaneFillColor=none;" vertex="1" parent="1">
           <mxGeometry x="40" y="30" width="720" height="635" as="geometry" />
         </mxCell>
         <mxCell id="Pf5CJ0JvECbctHs7dRIL-18" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.75;entryDx=0;entryDy=0;dashed=1;" edge="1" parent="Pf5CJ0JvECbctHs7dRIL-7" source="Pf5CJ0JvECbctHs7dRIL-5" target="Pf5CJ0JvECbctHs7dRIL-9">
