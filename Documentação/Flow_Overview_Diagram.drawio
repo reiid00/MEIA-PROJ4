@@ -1,0 +1,162 @@
+<mxfile host="app.diagrams.net" modified="2023-05-08T18:14:14.326Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36" etag="FqzXiBeGEIS3ASmOU_WR" version="21.2.4" type="device">
+  <diagram name="Page-1" id="17BwZoJ1Gh5FCuWuccQb">
+    <mxGraphModel dx="1050" dy="541" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="Pf5CJ0JvECbctHs7dRIL-7" value="Geographical Area (Porto/Lisbon)" style="swimlane;startSize=0;spacingTop=-20;swimlaneFillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="40" y="30" width="720" height="635" as="geometry" />
+        </mxCell>
+        <mxCell id="Pf5CJ0JvECbctHs7dRIL-18" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.75;entryDx=0;entryDy=0;dashed=1;" edge="1" parent="Pf5CJ0JvECbctHs7dRIL-7" source="Pf5CJ0JvECbctHs7dRIL-5" target="Pf5CJ0JvECbctHs7dRIL-9">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="Pf5CJ0JvECbctHs7dRIL-19" value="Route Adjustment&lt;br style=&quot;border-color: var(--border-color);&quot;&gt;(collision avoidance)" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="Pf5CJ0JvECbctHs7dRIL-18">
+          <mxGeometry x="0.4764" y="-1" relative="1" as="geometry">
+            <mxPoint x="-24" y="-14" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Pf5CJ0JvECbctHs7dRIL-20" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;dashed=1;" edge="1" parent="Pf5CJ0JvECbctHs7dRIL-7" source="Pf5CJ0JvECbctHs7dRIL-5" target="Pf5CJ0JvECbctHs7dRIL-9">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="Pf5CJ0JvECbctHs7dRIL-21" value="Route Optimization" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="Pf5CJ0JvECbctHs7dRIL-20">
+          <mxGeometry x="0.632" y="-1" relative="1" as="geometry">
+            <mxPoint x="19" y="-9" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Pf5CJ0JvECbctHs7dRIL-22" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.25;entryDx=0;entryDy=0;dashed=1;" edge="1" parent="Pf5CJ0JvECbctHs7dRIL-7" source="Pf5CJ0JvECbctHs7dRIL-5" target="Pf5CJ0JvECbctHs7dRIL-9">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="Pf5CJ0JvECbctHs7dRIL-23" value="Route Assignment" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="Pf5CJ0JvECbctHs7dRIL-22">
+          <mxGeometry x="0.5764" y="3" relative="1" as="geometry">
+            <mxPoint x="18" y="-13" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Pf5CJ0JvECbctHs7dRIL-5" value="Traffic Control Station" style="swimlane;startSize=0;spacingTop=-20;" vertex="1" parent="Pf5CJ0JvECbctHs7dRIL-7">
+          <mxGeometry x="247.5" y="40" width="215" height="100" as="geometry">
+            <mxRectangle x="80" y="40" width="170" height="10" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Pf5CJ0JvECbctHs7dRIL-4" value="Station" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="Pf5CJ0JvECbctHs7dRIL-5">
+          <mxGeometry x="22.5" y="20" width="170" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="Pf5CJ0JvECbctHs7dRIL-24" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;dashed=1;" edge="1" parent="Pf5CJ0JvECbctHs7dRIL-7" source="Pf5CJ0JvECbctHs7dRIL-9" target="Pf5CJ0JvECbctHs7dRIL-5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="Pf5CJ0JvECbctHs7dRIL-26" value="Delivery Status" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="Pf5CJ0JvECbctHs7dRIL-24">
+          <mxGeometry x="0.4521" y="-3" relative="1" as="geometry">
+            <mxPoint x="2" y="-18" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Pf5CJ0JvECbctHs7dRIL-25" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;" edge="1" parent="Pf5CJ0JvECbctHs7dRIL-7" source="Pf5CJ0JvECbctHs7dRIL-9">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="248" y="125" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="140" y="125" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Pf5CJ0JvECbctHs7dRIL-27" value="Location" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="Pf5CJ0JvECbctHs7dRIL-25">
+          <mxGeometry x="0.4011" y="-4" relative="1" as="geometry">
+            <mxPoint x="-13" y="-14" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Pf5CJ0JvECbctHs7dRIL-32" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;dashed=1;" edge="1" parent="Pf5CJ0JvECbctHs7dRIL-7" source="Pf5CJ0JvECbctHs7dRIL-9" target="Pf5CJ0JvECbctHs7dRIL-30">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="140" y="565" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Pf5CJ0JvECbctHs7dRIL-33" value="Charging Request" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="Pf5CJ0JvECbctHs7dRIL-32">
+          <mxGeometry x="-0.098" y="4" relative="1" as="geometry">
+            <mxPoint x="6" y="-3" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Pf5CJ0JvECbctHs7dRIL-9" value="Coordinated Delivery Drone System" style="swimlane;startSize=0;spacingTop=-20;" vertex="1" parent="Pf5CJ0JvECbctHs7dRIL-7">
+          <mxGeometry x="32.5" y="235" width="215" height="220" as="geometry">
+            <mxRectangle x="80" y="40" width="170" height="10" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Pf5CJ0JvECbctHs7dRIL-10" value="Drone 1" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="Pf5CJ0JvECbctHs7dRIL-9">
+          <mxGeometry x="22.5" y="20" width="170" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="Pf5CJ0JvECbctHs7dRIL-12" value="Drone 2" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="Pf5CJ0JvECbctHs7dRIL-9">
+          <mxGeometry x="22.5" y="70" width="170" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="Pf5CJ0JvECbctHs7dRIL-13" value="Drone 3" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="Pf5CJ0JvECbctHs7dRIL-9">
+          <mxGeometry x="22.5" y="120" width="170" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="Pf5CJ0JvECbctHs7dRIL-14" value="Drone ..." style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="Pf5CJ0JvECbctHs7dRIL-9">
+          <mxGeometry x="22.5" y="170" width="170" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="Pf5CJ0JvECbctHs7dRIL-30" value="Charging Control Station" style="swimlane;startSize=0;spacingTop=-20;" vertex="1" parent="Pf5CJ0JvECbctHs7dRIL-7">
+          <mxGeometry x="257.5" y="515" width="215" height="100" as="geometry">
+            <mxRectangle x="80" y="40" width="170" height="10" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Pf5CJ0JvECbctHs7dRIL-31" value="Station" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="Pf5CJ0JvECbctHs7dRIL-30">
+          <mxGeometry x="22.5" y="20" width="170" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="Pf5CJ0JvECbctHs7dRIL-44" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;entryX=1;entryY=0.25;entryDx=0;entryDy=0;" edge="1" parent="Pf5CJ0JvECbctHs7dRIL-7" source="Pf5CJ0JvECbctHs7dRIL-39" target="Pf5CJ0JvECbctHs7dRIL-30">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="480" y="550" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="530" y="540" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Pf5CJ0JvECbctHs7dRIL-45" value="Charging Status" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="Pf5CJ0JvECbctHs7dRIL-44">
+          <mxGeometry x="-0.0841" relative="1" as="geometry">
+            <mxPoint y="9" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Pf5CJ0JvECbctHs7dRIL-39" value="Charging Station System" style="swimlane;startSize=0;spacingTop=-20;" vertex="1" parent="Pf5CJ0JvECbctHs7dRIL-7">
+          <mxGeometry x="462.5" y="235" width="215" height="220" as="geometry">
+            <mxRectangle x="80" y="40" width="170" height="10" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Pf5CJ0JvECbctHs7dRIL-40" value="Charging&amp;nbsp;Station 1" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="Pf5CJ0JvECbctHs7dRIL-39">
+          <mxGeometry x="22.5" y="20" width="170" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="Pf5CJ0JvECbctHs7dRIL-41" value="Charging Station 2" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="Pf5CJ0JvECbctHs7dRIL-39">
+          <mxGeometry x="22.5" y="70" width="170" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="Pf5CJ0JvECbctHs7dRIL-42" value="Charging Station 3" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="Pf5CJ0JvECbctHs7dRIL-39">
+          <mxGeometry x="22.5" y="120" width="170" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="Pf5CJ0JvECbctHs7dRIL-43" value="Charging Station ..." style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="Pf5CJ0JvECbctHs7dRIL-39">
+          <mxGeometry x="22.5" y="170" width="170" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="Pf5CJ0JvECbctHs7dRIL-46" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;" edge="1" parent="Pf5CJ0JvECbctHs7dRIL-7">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="400" y="510" as="sourcePoint" />
+            <mxPoint x="463" y="420" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="400" y="420" />
+              <mxPoint x="463" y="420" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Pf5CJ0JvECbctHs7dRIL-47" value="Charging Spot Assignment" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="Pf5CJ0JvECbctHs7dRIL-46">
+          <mxGeometry x="0.0983" y="1" relative="1" as="geometry">
+            <mxPoint x="-9" y="19" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Pf5CJ0JvECbctHs7dRIL-48" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;exitX=1;exitY=0.75;exitDx=0;exitDy=0;" edge="1" parent="Pf5CJ0JvECbctHs7dRIL-7" source="Pf5CJ0JvECbctHs7dRIL-30" target="Pf5CJ0JvECbctHs7dRIL-5">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="473" y="595" />
+              <mxPoint x="700" y="595" />
+              <mxPoint x="700" y="90" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Pf5CJ0JvECbctHs7dRIL-50" value="Charging Status / Drone Readiness" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="Pf5CJ0JvECbctHs7dRIL-48">
+          <mxGeometry x="-0.7313" y="-2" relative="1" as="geometry">
+            <mxPoint x="-5" y="-13" as="offset" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
