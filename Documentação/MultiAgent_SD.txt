@@ -1,0 +1,39 @@
+@startuml
+title Multi-Agent System - Autonomous Drone Delivery
+
+actor Customer
+participant App
+participant TrafficControlStation
+participant Drone
+participant ChargingControlStation
+participant Dispatcher
+
+Customer -> App: Place Order
+App -> App: Generate Unique QR Code
+App --> Customer: Notify QR Code
+App -> TrafficControlStation: Send Order Details and QR Code
+loop Drone Info
+	Drone --> TrafficControlStation: Report Location and Delivery Status
+end
+TrafficControlStation -> TrafficControlStation: Analyse Drones and Allocate Routes
+TrafficControlStation -> TrafficControlStation: Optimize Routes and Avoid Collisions
+TrafficControlStation -> Drone: Send Route Instructions
+Drone -> Drone: Perform Delivery Process
+Drone -> Dispatcher: Request Collection (if necessary)
+Dispatcher -> Drone: Provide Collection Details
+TrafficControlStation --> App: Report Delivery Status
+App --> Customer: Notify Order Status
+Customer -> Drone: Display QR Code
+Drone -> TrafficControlStation: Scan QR Code
+TrafficControlStation -> TrafficControlStation: Validate QR Code
+TrafficControlStation -> App: Report QR Code Validation
+App -> Customer: Notify Delivery Completion
+
+alt Low Battery
+    Drone -> ChargingControlStation: Request Charging Spot
+    ChargingControlStation -> ChargingControlStation: Analyze Charging Stations and Allocate Spot
+    ChargingControlStation -> Drone: Send Charging Instructions
+    Drone -> ChargingControlStation: Report Charging Status
+    ChargingControlStation -> Drone: Notify Charging Completion
+end
+@enduml
