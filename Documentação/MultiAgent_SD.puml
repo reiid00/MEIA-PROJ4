@@ -2,15 +2,16 @@
 title Multi-Agent System - Autonomous Drone Delivery
 
 actor Customer
-participant App
-participant TrafficControlStation
-participant Drone
-participant ChargingControlStation
-participant Dispatcher
+participant App #lightgreen
+participant TrafficControlStation #lightblue
+participant Drone #lightblue
+participant ChargingControlStation #lightblue
+participant Dispatcher #lightgreen
 
 Customer -> App: Place Order
 App -> App: Generate Unique QR Code
 App --> Customer: Notify QR Code
+App -> Dispatcher: Send Order Request
 App -> TrafficControlStation: Send Order Details and QR Code
 loop Drone Info
 	Drone --> TrafficControlStation: Report Location and Delivery Status
@@ -19,10 +20,16 @@ TrafficControlStation -> TrafficControlStation: Analyse Drones and Allocate Rout
 TrafficControlStation -> TrafficControlStation: Optimize Routes and Avoid Collisions
 TrafficControlStation -> Drone: Send Route Instructions
 Drone -> Drone: Perform Delivery Process
-Drone -> Dispatcher: Request Collection (if necessary)
-Dispatcher -> Drone: Provide Collection Details
-TrafficControlStation --> App: Report Delivery Status
-App --> Customer: Notify Order Status
+Drone -> Dispatcher: Request Collection of Goods (if necessary)
+Dispatcher -> Drone: Provide Collection Goods and Details
+
+alt Delivery Status Change
+  Drone -> TrafficControlStation: Report Delivery Status
+  TrafficControlStation -> TrafficControlStation: Update Delivery Status
+  TrafficControlStation --> App: Report Delivery Status
+  App --> Customer: Notify Order Status
+end
+
 Customer -> Drone: Display QR Code
 Drone -> TrafficControlStation: Scan QR Code
 TrafficControlStation -> TrafficControlStation: Validate QR Code
@@ -30,10 +37,18 @@ TrafficControlStation -> App: Report QR Code Validation
 App -> Customer: Notify Delivery Completion
 
 alt Low Battery
-    Drone -> ChargingControlStation: Request Charging Spot
+    Drone -> TrafficControlStation: Request Charging Spot
+    TrafficControlStation -> ChargingControlStation: Forward Charging Request
     ChargingControlStation -> ChargingControlStation: Analyze Charging Stations and Allocate Spot
     ChargingControlStation -> Drone: Send Charging Instructions
     Drone -> ChargingControlStation: Report Charging Status
-    ChargingControlStation -> Drone: Notify Charging Completion
+    
+    alt Regular Charging Completion
+        ChargingControlStation -> Drone: Notify Charging Completion
+    else Early Charging Completion
+        TrafficControlStation -> ChargingControlStation: Request Early Charging Completion
+        ChargingControlStation -> Drone: Notify Early Charging Completion
+    end
 end
+
 @enduml
