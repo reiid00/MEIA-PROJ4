@@ -1,0 +1,28 @@
+@startuml
+title Multi-Agent Autonomous Drone Delivery System - Charging Main Flow
+
+participant TrafficControlStation #lightblue
+participant Drone #lightblue
+participant ChargingControlStation #lightblue
+participant Charging Drone #lightblue
+
+loop Low Battery
+    Drone -> TrafficControlStation: Request Charging Spot
+    TrafficControlStation -> ChargingControlStation: Forward Charging Request
+    ChargingControlStation -> ChargingControlStation: Analyze Charging Stations
+
+    alt No Charging Spot Available
+        ChargingControlStation -> ChargingControlStation: Analyze Charging Drones
+        ChargingControlStation -> ChargingControlStation: Choose Drone for Early Charging
+        
+        ChargingControlStation -> Charging Drone: Notify Early Charging (No Available Spots)
+    end
+    
+    	ChargingControlStation -> ChargingControlStation: Allocate Charging Station Spot
+        ChargingControlStation -> Drone: Send Charging Instructions
+        loop Drone Info
+        	Drone --> ChargingControlStation: Report Charging Status
+        end
+end
+
+@enduml

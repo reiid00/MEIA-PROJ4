@@ -1,0 +1,33 @@
+@startuml
+title Multi-Agent Autonomous Drone Delivery System - Order Main Flow
+
+actor Customer
+participant App #lightgreen
+participant TrafficControlStation #lightblue
+participant Drone #lightblue
+participant Dispatcher #lightgreen
+
+loop Drone Info
+	Drone --> TrafficControlStation: Report Location
+end
+
+Customer -> App: Place Order
+App -> App: Generate Unique QR Code
+App --> Customer: Notify QR Code
+App -> Dispatcher: Send Order Request
+App -> TrafficControlStation: Send Order Details and QR Code
+TrafficControlStation -> TrafficControlStation: Analyse Drones and Allocate Routes
+TrafficControlStation -> TrafficControlStation: Optimize Routes and Avoid Collisions
+TrafficControlStation -> Drone: Send Route Instructions
+Drone -> Drone: Perform Delivery Process
+Drone -> Dispatcher: Request Collection of Goods (if necessary)
+Dispatcher -> Drone: Provide Collection Goods and Details
+
+alt Order Status Change
+  Drone -> TrafficControlStation: Report Order Status
+  TrafficControlStation -> TrafficControlStation: Update Order Status
+  TrafficControlStation --> App: Report Order Status
+  App --> Customer: Notify Order Status
+end
+
+@enduml

@@ -1,0 +1,16 @@
+@startuml
+title Multi-Agent Autonomous Drone Delivery System - Early Charging Flow
+
+participant TrafficControlStation #lightblue
+participant ChargingControlStation #lightblue
+participant Charging Drone #lightblue
+
+loop Supply and Demand Analysis 
+	TrafficControlStation -> TrafficControlStation:  Analyse Demand and Supply (Drones Availability)
+  alt High Demand
+      TrafficControlStation -> ChargingControlStation: Request Early Charging Completion
+      ChargingControlStation -> Charging Drone: Notify Early Charging Completion
+  end
+end
+
+@enduml

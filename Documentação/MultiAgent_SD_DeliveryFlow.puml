@@ -1,0 +1,32 @@
+@startuml
+title Multi-Agent Autonomous Drone Delivery System - Delivery Flow
+
+actor Customer
+participant App #lightgreen
+participant TrafficControlStation #lightblue
+participant Drone #lightblue
+
+loop Until Validation Success or Maximum Attempts Reached)
+  Customer -> Drone: Display QR Code
+  Drone -> TrafficControlStation: Scan QR Code
+  TrafficControlStation -> TrafficControlStation: Validate QR Code
+  alt Validation Success
+      TrafficControlStation --> Drone: Send Validation Confirmation
+      Drone -> Customer: Unlock Goods Package
+      Customer -> Drone: Collect Goods Package
+      Drone -> TrafficControlStation: Confirm Order Delivery
+      TrafficControlStation -> TrafficControlStation: Update Delivery Status
+      TrafficControlStation -> App: Report Delivery Success
+      App -> Customer: Notify Delivery Completion
+  else Validation Error
+      TrafficControlStation --> Drone: Send Validation Error
+      TrafficControlStation -> TrafficControlStation: Increment Attempt Counter
+
+      alt Maximum Attempts Exceeded
+          TrafficControlStation -> App: Report Delivery Error
+          App -> Customer: Notify Delivery Error
+      end
+  end
+end
+
+@enduml
