@@ -16,16 +16,6 @@ def get_pending_orders():
         return {'pending_orders': pending_orders}, 200
 
 @app.route('/pending_orders', methods=['POST'])
-def update_pending_orders():
-    new_order = request.get_json().get('order', None)
-    if new_order:
-        with pending_orders_lock:
-            pending_orders.append(new_order)
-        return '', 200
-    else:
-        return 'Invalid request', 400
-
-@app.route('/pending_orders', methods=['POST'])
 def add_pending_order():
     order_details = request.get_json()
 
