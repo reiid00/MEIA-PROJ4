@@ -2,8 +2,8 @@ import json
 from spade.behaviour import CyclicBehaviour
 from spade.message import Message
 from common.BaseAgent import BaseAgent
-from config import AGENT_NAMES, NUM_DRONES, OrderStatus, DroneStatus
-from geopy.distance import great_circle
+from config import AGENT_NAMES, NUM_DRONES, HEIGHT_RANGE, OrderStatus, DroneStatus
+from utils import calculate_distance
 
 class TrafficControlStationAgent(BaseAgent):
     def __init__(self, jid: str, password: str):
@@ -17,6 +17,7 @@ class TrafficControlStationAgent(BaseAgent):
             self.drones[drone_id] = {
                 "status": DroneStatus.UNAVAILABLE.value,
                 "location": None,
+                "route_height": HEIGHT_RANGE[0],
                 "assigned_order": None
             }
 
@@ -35,6 +36,8 @@ class TrafficControlStationAgent(BaseAgent):
                     self.update_order_status(order_status["order_id"], order_status["status"])
 
         def assign_order(self, order_id, details):
+            self.agent.agent_say(f"Assigning order {order_id}...")
+
             # Save order
             self.orders[order_id] = {
                 "details": details,
@@ -43,38 +46,40 @@ class TrafficControlStationAgent(BaseAgent):
 
             # Find the best available drone (closest to dispatcher location)
             dispatcher_location = details["dispatcher_location"]
-            best_drone = None
-            min_distance = float("inf")
-            for drone_id, drone_info in self.agent.drones.items():
-                if drone_info["status"] == DroneStatus.AVAILABLE.value:
-                    drone_location = drone_info["location"]
-                    distance = self.calculate_distance(dispatcher_location, drone_location)
-                    if distance < min_distance:
-                        best_drone = drone_id
-                        min_distance = distance
+            available_drones = [(drone_id, drone_info) for drone_id, drone_info in self.agent.drones.items()
+                if drone_info["status"] == DroneStatus.AVAILABLE.value]
+            if available_drones:
+                closest_drone = min(
+                    available_drones,
+                    key=lambda drone: calculate_distance(dispatcher_location, drone[1]["location"])
+                )[0]
 
-            if best_drone:
                 # Assign the order to the best available drone
                 self.orders[order_id]["status"] = OrderStatus.ASSIGNED.value
-                self.orders[order_id]["assigned_drone"] = best_drone
+                self.orders[order_id]["assigned_drone"] = closest_drone
+                self.agent.agent_say(f"Order {order_id} assigned to drone: {closest_drone}")
 
                 # Send route instructions to the assigned drone
                 route_instructions = {
                     "order_id": order_id,
                     "dispatcher_location": details["dispatcher_location"],
                     "customer_location": details["customer_location"],
-                    "qrcode": details["qrcode"]
+                    "qrcode": details["qrcode"],
+                    "route_height": HEIGHT_RANGE[0]
                 }
-                self.send_assigned_route_instructions(best_drone, route_instructions)
+                self.send_assigned_route_instructions(closest_drone, route_instructions)
 
                 # Update order status to "ON_THE_WAY_TO_DISPATCHER"
                 self.orders[order_id]["status"] = OrderStatus.ON_THE_WAY_TO_DISPATCHER.value
+            else:
+                self.agent.agent_say(f'No drones available. Unable to fulfill order {order_id}.')     
 
         def send_assigned_route_instructions(self, drone_id, route_instructions):
             route_msg = Message(to=f'{AGENT_NAMES["DRONE"]}{drone_id}@localhost')
             route_msg.set_metadata("performative", "inform_route")
             route_msg.body = json.dumps(route_instructions)
             self.send(route_msg)
+            self.agent.agent_say(f'Route instructions sent to drone {drone_id}.')
 
         def update_order_status(self, order_id, new_status):
             if order_id in self.agent.orders:
@@ -90,19 +95,6 @@ class TrafficControlStationAgent(BaseAgent):
             status_msg.set_metadata("performative", "inform_status")
             status_msg.body = json.dumps({"order_id": order_id, "status": status})
             self.send(status_msg)
-
-        def calculate_distance(self, location1, location2):
-            # Check if any location is invalid
-            if not location1 or not location2 or \
-                    "latitude" not in location1 or "longitude" not in location1 or \
-                    "latitude" not in location2 or "longitude" not in location2:
-                return float("inf")
-
-            point1 = (location1["latitude"], location1["longitude"])
-            point2 = (location2["latitude"], location2["longitude"])
-
-            distance = great_circle(point1, point2).meters
-            return distance
 
     class DroneHandlingBehaviour(CyclicBehaviour):
         async def run(self):

@@ -3,14 +3,17 @@
 from enum import Enum
 
 # Define internal configurations
-HEIGHT_RANGE = (150, 200) # Height range allowed for drones
+HEIGHT_RANGE = (150, 200) # Height range allowed for drones, in meters
+OPTIMUM_BATTERY_RANGE = (20, 80) # Optimum battery range for drones, in percentage
 NUM_DRONES = 3  # Number of drone agents
 AGENT_NAMES = {
     "CUSTOMER": "customer_agent",
     "APP": "app_agent",
     "TRAFFIC_CONTROL_STATION": "traffic_control_station_agent",
+    "CHARGING_CONTROL_STATION": "charging_control_station_agent",
     "DRONE": "drone_agent",
-    "DISPATCHER": "dispatcher_agent"
+    "DISPATCHER": "dispatcher_agent",
+    "ROS2_NODE_AGENT": "ros2_node_agent"
 }
 
 # Define external configurations
@@ -33,5 +36,22 @@ class OrderStatus(Enum):
 class DroneStatus(Enum):
     UNAVAILABLE = 1
     AVAILABLE = 2
-    OCCUPIED = 2
-    CHARGING = 3
+    OCCUPIED = 3
+    OCCUPIED_PENDING_CHARGING = 4
+    PENDING_CHARGING = 5
+    ON_THE_WAY_TO_CHARGING_STATION = 6
+    CHARGING = 7
+
+class ChargingStationStatus(Enum):
+    UNAVAILABLE = 1
+    AVAILABLE = 2
+
+class ChargingStationSpotStatus(Enum):
+    UNAVAILABLE = 1
+    AVAILABLE = 2
+    OCCUPIED = 3
+
+class DroneTargetType(Enum):
+    DISPATCHER = 1
+    CUSTOMER = 2
+    CHARGING_STATION = 3
