@@ -26,7 +26,7 @@ class TrafficControlStationAgent(BaseAgent):
             msg = await self.receive(timeout=10)
             if msg:
                 performative = msg.get_metadata("performative")
-                if performative == "inform":
+                if performative == "inform_order":
                     # Receive order details from App agent
                     order_details = json.loads(msg.body)
                     self.assign_order(order_details["order_id"], order_details["details"])
@@ -96,7 +96,7 @@ class TrafficControlStationAgent(BaseAgent):
             status_msg.body = json.dumps({"order_id": order_id, "status": status})
             self.send(status_msg)
 
-    class DroneHandlingBehaviour(CyclicBehaviour):
+    class DroneLocationHandlingBehaviour(CyclicBehaviour):
         async def run(self):
             msg = await self.receive(timeout=10)
             if msg:
@@ -115,7 +115,43 @@ class TrafficControlStationAgent(BaseAgent):
                 # Update drone location
                 self.agent.drones[drone_id]["location"] = new_location
 
+    class DroneChargingHandlingBehaviour(CyclicBehaviour):
+        async def run(self):
+            msg = await self.receive(timeout=10)
+            if msg:
+                performative = msg.get_metadata("performative")
+                if performative == "request_charging":
+                    # Receive charging request from Drone Agent
+                    charging_request = json.loads(msg.body)
+                    self.handle_charging_request(charging_request["drone_id"])
+                elif performative == "confirm_charging_completion":
+                    # Receive charging completion confirmation from Drone Agent
+                    charging_completion_confirmation = json.loads(msg.body)
+                    self.handle_charging_completion_confirmation(charging_completion_confirmation["drone_id"])
+
+        def handle_charging_request(self, drone_id):
+            self.agent.agent_say(f"Received charging request for drone {drone_id}.")
+            if drone_id in self.agent.drones:
+                # Update the drone status
+                self.agent.drones[drone_id]["status"] = DroneStatus.CHARGING.value
+                # Redirect the request to the Charging Control Station Agent
+                self.redirect_charging_request(drone_id, self.agent.drones[drone_id]["location"], HEIGHT_RANGE[0])
+
+        def redirect_charging_request(self, drone_id, drone_location, route_height):
+            charging_request_msg = Message(to=f'{AGENT_NAMES["CHARGING_CONTROL_STATION"]}@localhost')
+            charging_request_msg.set_metadata("performative", "request_charging")
+            charging_request_msg.body = json.dumps({"drone_id": drone_id, "drone_location": drone_location, "route_height": route_height})
+            self.send(charging_request_msg)
+            self.agent.agent_say(f"Redirected charging request for drone {drone_id} to Charging Control Station Agent.")
+
+        def handle_charging_completion_confirmation(self, drone_id):
+            self.agent.agent_say(f"Received charging completion confirmation for drone {drone_id}.")
+            if drone_id in self.agent.drones:
+                # Update the drone status
+                self.agent.drones[drone_id]["status"] = DroneStatus.AVAILABLE.value
+
     async def setup(self):
         await super().setup()
         self.add_behaviour(self.OrderHandlingBehaviour())
-        self.add_behaviour(self.DroneHandlingBehaviour())
+        self.add_behaviour(self.DroneLocationHandlingBehaviour())
+        self.add_behaviour(self.DroneChargingHandlingBehaviour())

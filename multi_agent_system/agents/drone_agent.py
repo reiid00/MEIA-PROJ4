@@ -59,7 +59,7 @@ class DroneAgent(BaseAgent):
         def send_charging_completion_confirmation(self):
             confirmation_msg = Message(to=f'{AGENT_NAMES["TRAFFIC_CONTROL_STATION"]}@localhost')
             confirmation_msg.set_metadata("performative", "confirm_charging_completion")
-            confirmation_msg.body = json.dumps(True)
+            confirmation_msg.body = json.dumps({"drone_id": self.agent.drone_id})
             self.send(confirmation_msg)
             self.agent.agent_say(f'Sent charging completion confirmation')
 
@@ -104,7 +104,7 @@ class DroneAgent(BaseAgent):
         def send_target(self, target):
             target_msg = Message(to=f'{AGENT_NAMES["ROS2_NODE_AGENT"]}@localhost')
             target_msg.set_metadata("performative", "inform_target")
-            target_msg.body = json.dumps(target)
+            target_msg.body = json.dumps({"drone_id": self.agent.drone_id, "target": target})
             self.send(target_msg)
             self.agent.agent_say(f'Sent target: {target["type"].name}')
 
@@ -118,6 +118,7 @@ class DroneAgent(BaseAgent):
         def send_charging_completion_confirmation(self):
             confirmation_msg = Message(to=f'{AGENT_NAMES["TRAFFIC_CONTROL_STATION"]}@localhost')
             confirmation_msg.set_metadata("performative", "confirm_charging_completion")
+            confirmation_msg.body = json.dumps({"drone_id": self.agent.drone_id})
             self.send(confirmation_msg)
             self.agent.agent_say(f'Sent charging completion confirmation')
 
@@ -189,7 +190,7 @@ class DroneAgent(BaseAgent):
         def send_order_status_update(self, order_id, status):
             status_msg = Message(to=f'{AGENT_NAMES["TRAFFIC_CONTROL_STATION"]}@localhost')
             status_msg.set_metadata("performative", "inform_status")
-            status_msg.body = json.dumps({"order_id": order_id, "status": status})
+            status_msg.body = json.dumps({"drone_id": self.agent.drone_id, "order_id": order_id, "status": status})
             self.send(status_msg)
             self.agent.agent_say(f'Sent order status update: Order {order_id} - Status {status}')
 
@@ -208,7 +209,7 @@ class DroneAgent(BaseAgent):
 
             target_msg = Message(to=f'{AGENT_NAMES["ROS2_NODE_AGENT"]}@localhost')
             target_msg.set_metadata("performative", "inform_target")
-            target_msg.body = json.dumps(target)
+            target_msg.body = json.dumps({"drone_id": self.agent.drone_id, "target": target})
             self.send(target_msg)
             self.agent.agent_say(f'Sent target: {target["type"].name}')
 

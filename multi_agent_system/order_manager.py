@@ -36,18 +36,21 @@ if __name__ == '__main__':
 # Pending Order JSON Template:
 # {
 #     "order_id": 1,
-#     "customer_name": "John Doe",
-#     "item": "Example Item",
-#     "quantity": 2,
-#     "dispatcher_location": {
-#         "address": "123 Main St",
-#         "latitude": 41.50,
-#         "longitude": -10.150
-#     },
-#     "customer_location": {
-#         "address": "123 Main St",
-#         "latitude": 41.50,
-#         "longitude": -10.150
-#     },
-#     "qrcode": "1234567890"
+#     "details": 
+#     {
+#           "customer_name": "John Doe",
+#           "item": "Example Item",
+#           "quantity": 2,
+#           "dispatcher_location": {
+#               "address": "123 Main St",
+#               "latitude": 41.50,
+#               "longitude": -10.150
+#           },
+#           "customer_location": {
+#               "address": "123 Main St",
+#               "latitude": 41.50,
+#               "longitude": -10.150
+#           },
+#           "qrcode": "1234567890"
+#     }
 # }

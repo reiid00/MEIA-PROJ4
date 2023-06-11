@@ -46,13 +46,12 @@ class ChargingControlStationAgent(BaseAgent):
                                    spot["status"] == ChargingStationSpotStatus.AVAILABLE.value]
                 available_spots[0]["status"] = ChargingStationSpotStatus.OCCUPIED.value
                 available_spots[0]["charging_drone"] = drone_id
-                self.agent.agent_say(f'Charging request for drone {drone_id} assigned to station: {closest_station["id"]}, spot {available_spots[0]["id"]}')
-
                 self.send_charging_instructions(drone_id, closest_station, available_spots[0], route_height)
             else:
-                self.attempt_early_charging(drone_id)
+                self.attempt_early_charging(drone_id, route_height)
 
         def send_charging_instructions(self, drone_id, charging_station, spot, route_height):
+            self.agent.agent_say(f'Charging request for drone {drone_id} assigned to station: {charging_station["id"]}, spot {spot["id"]}')
             charging_instructions = {
                 "charging_station_id": charging_station["id"],
                 "charging_station_location": charging_station["location"],
@@ -65,13 +64,15 @@ class ChargingControlStationAgent(BaseAgent):
             self.send(charging_instructions_msg)
             self.agent.agent_say(f'Charging instructions sent to drone {drone_id}.')
 
-        def attempt_early_charging(self, drone_id):
+        def attempt_early_charging(self, drone_id, route_height):
             self.agent.agent_say(f'Attempting early charging for drone {drone_id}...')  
             charging_drones = self.agent.charging_drones
             drones_reaching_threshold = [drone for drone, battery in charging_drones.items() if battery >= OPTIMUM_BATTERY_RANGE[1]]
             if drones_reaching_threshold:
                 drone_with_highest_battery = max(drones_reaching_threshold, key=lambda drone: charging_drones[drone])
                 self.notify_early_charging(drone_with_highest_battery)
+                self.reassign_charging_spot(drone_with_highest_battery, drone_id, route_height)
+                del self.agent.charging_drones[drone_with_highest_battery]
             else:
                 self.agent.agent_say(f'No charging spots available. Unable to fulfill charging request for drone {drone_id}.')
 
@@ -80,8 +81,16 @@ class ChargingControlStationAgent(BaseAgent):
             notify_msg.set_metadata("performative", "notify_early_charging")
             notify_msg.body = json.dumps(True)
             self.send(notify_msg)
-            del self.agent.charging_drones[drone_id]
             self.agent.agent_say(f'Early charging successful, selected and notified drone {drone_id}.')
+
+        def reassign_charging_spot(self, current_drone_id, new_drone_id, route_height):
+            charging_stations = self.agent.charging_stations
+            for station in charging_stations:
+                for spot in station["spots"]:
+                    if spot["charging_drone"] == current_drone_id:
+                        spot["charging_drone"] = new_drone_id
+                        self.send_charging_instructions(new_drone_id, station, spot, route_height)
+                        return
 
     class BatteryReportBehaviour(CyclicBehaviour):
         async def run(self):
