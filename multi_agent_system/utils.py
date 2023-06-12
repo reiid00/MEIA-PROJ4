@@ -1,7 +1,7 @@
 
 from geopy.distance import great_circle
 
-def calculate_distance(self, location1, location2):
+def calculate_distance(location1, location2):
     # Check if any location is invalid
     if not location1 or not location2 or \
             "latitude" not in location1 or "longitude" not in location1 or \

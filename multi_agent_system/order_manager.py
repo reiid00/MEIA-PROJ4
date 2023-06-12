@@ -6,8 +6,8 @@ pending_orders = []
 pending_orders_lock = threading.Lock()
 
 REQUIRED_PENDING_ORDER_ATTRIBUTES = [
-    'order_id', 'customer_name', 'item', 'quantity',
-    'dispatcher_location', 'customer_location', 'qrcode'
+    'order_id', 'details.customer_name', 'details.item', 'details.quantity',
+    'details.dispatcher_location', 'details.customer_location', 'details.qrcode'
 ]
 
 @app.route('/pending_orders', methods=['GET'])

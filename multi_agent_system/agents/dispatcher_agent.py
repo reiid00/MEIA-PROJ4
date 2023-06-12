@@ -12,9 +12,9 @@ class DispatcherAgent(BaseAgent):
                 if performative == "inform_order":
                     # Receive order details from App agent
                     order_details = json.loads(msg.body)
-                    self.send_order_to_dispatcher_api(order_details["order_id"], order_details["details"])
+                    await self.send_order_to_dispatcher_api(order_details["order_id"], order_details["details"])
 
-        def send_order_to_dispatcher_api(self, order_id, order_details):
+        async def send_order_to_dispatcher_api(self, order_id, details):
             # Simulate sending order details to the Dispatcher API
             # In this example, we simulate by logging the order details
             self.agent.agent_say(f"Order sent to Dispatcher API: {DISPATCHER_API_URL}\nOrder {order_id}")
