@@ -1,0 +1,6 @@
+source;share/px4_ros_mas_com/hook/pythonpath.ps1
+source;share/px4_ros_mas_com/hook/pythonpath.dsv
+source;share/px4_ros_mas_com/hook/pythonpath.sh
+source;share/px4_ros_mas_com/hook/ament_prefix_path.ps1
+source;share/px4_ros_mas_com/hook/ament_prefix_path.dsv
+source;share/px4_ros_mas_com/hook/ament_prefix_path.sh

@@ -1,0 +1,24 @@
+[0.622s] Invoking command in '/home/vasco/MEIA-PROJ4/ROS2-PX4-Workspace/src/px4_ros_mas_com': PYTHONPATH=/home/vasco/MEIA-PROJ4/ROS2-PX4-Workspace/build/px4_ros_mas_com/prefix_override:/home/vasco/MEIA-PROJ4/ROS2-PX4-Workspace/install/px4_ros_mas_com/lib/python3.8/site-packages:${PYTHONPATH} /usr/bin/python3 setup.py egg_info --egg-base ../../build/px4_ros_mas_com build --build-base /home/vasco/MEIA-PROJ4/ROS2-PX4-Workspace/build/px4_ros_mas_com/build install --record /home/vasco/MEIA-PROJ4/ROS2-PX4-Workspace/build/px4_ros_mas_com/install.log --install-scripts $base/lib/px4_ros_mas_com --single-version-externally-managed
+[0.824s] running egg_info
+[0.824s] writing ../../build/px4_ros_mas_com/px4_ros_mas_com.egg-info/PKG-INFO
+[0.825s] writing dependency_links to ../../build/px4_ros_mas_com/px4_ros_mas_com.egg-info/dependency_links.txt
+[0.825s] writing entry points to ../../build/px4_ros_mas_com/px4_ros_mas_com.egg-info/entry_points.txt
+[0.825s] writing requirements to ../../build/px4_ros_mas_com/px4_ros_mas_com.egg-info/requires.txt
+[0.825s] writing top-level names to ../../build/px4_ros_mas_com/px4_ros_mas_com.egg-info/top_level.txt
+[0.862s] reading manifest file '../../build/px4_ros_mas_com/px4_ros_mas_com.egg-info/SOURCES.txt'
+[0.863s] writing manifest file '../../build/px4_ros_mas_com/px4_ros_mas_com.egg-info/SOURCES.txt'
+[0.863s] running build
+[0.863s] running build_py
+[0.864s] copying px4_ros_mas_com/drone_liftoff.py -> /home/vasco/MEIA-PROJ4/ROS2-PX4-Workspace/build/px4_ros_mas_com/build/lib/px4_ros_mas_com
+[0.864s] running install
+[0.864s] running install_lib
+[0.865s] copying /home/vasco/MEIA-PROJ4/ROS2-PX4-Workspace/build/px4_ros_mas_com/build/lib/px4_ros_mas_com/drone_liftoff.py -> /home/vasco/MEIA-PROJ4/ROS2-PX4-Workspace/install/px4_ros_mas_com/lib/python3.8/site-packages/px4_ros_mas_com
+[0.866s] byte-compiling /home/vasco/MEIA-PROJ4/ROS2-PX4-Workspace/install/px4_ros_mas_com/lib/python3.8/site-packages/px4_ros_mas_com/drone_liftoff.py to drone_liftoff.cpython-38.pyc
+[0.868s] running install_data
+[0.868s] running install_egg_info
+[0.870s] removing '/home/vasco/MEIA-PROJ4/ROS2-PX4-Workspace/install/px4_ros_mas_com/lib/python3.8/site-packages/px4_ros_mas_com-0.0.0-py3.8.egg-info' (and everything under it)
+[0.870s] Copying ../../build/px4_ros_mas_com/px4_ros_mas_com.egg-info to /home/vasco/MEIA-PROJ4/ROS2-PX4-Workspace/install/px4_ros_mas_com/lib/python3.8/site-packages/px4_ros_mas_com-0.0.0-py3.8.egg-info
+[0.873s] running install_scripts
+[0.888s] Installing drone_liftoff script to /home/vasco/MEIA-PROJ4/ROS2-PX4-Workspace/install/px4_ros_mas_com/lib/px4_ros_mas_com
+[0.888s] writing list of installed files to '/home/vasco/MEIA-PROJ4/ROS2-PX4-Workspace/build/px4_ros_mas_com/install.log'
+[0.917s] Invoked command in '/home/vasco/MEIA-PROJ4/ROS2-PX4-Workspace/src/px4_ros_mas_com' returned '0': PYTHONPATH=/home/vasco/MEIA-PROJ4/ROS2-PX4-Workspace/build/px4_ros_mas_com/prefix_override:/home/vasco/MEIA-PROJ4/ROS2-PX4-Workspace/install/px4_ros_mas_com/lib/python3.8/site-packages:${PYTHONPATH} /usr/bin/python3 setup.py egg_info --egg-base ../../build/px4_ros_mas_com build --build-base /home/vasco/MEIA-PROJ4/ROS2-PX4-Workspace/build/px4_ros_mas_com/build install --record /home/vasco/MEIA-PROJ4/ROS2-PX4-Workspace/build/px4_ros_mas_com/install.log --install-scripts $base/lib/px4_ros_mas_com --single-version-externally-managed
