@@ -26,6 +26,7 @@ class DroneControl(Node):
        # self.vehicle_local_pos_listener_ = self.create_subscription(VehicleLocalPosition, f"{topic_drone}/fmu/out/vehicle_local_position", self.listener_callback, qos_profile)
 
         self.current_position = [0.0, 0.0, 0.0]
+        self.goal_position = [0.0, 0.0, 0.0]
         self.offboard_setpoint_counter_ = 0
 
         self.target_system = drone_num+1

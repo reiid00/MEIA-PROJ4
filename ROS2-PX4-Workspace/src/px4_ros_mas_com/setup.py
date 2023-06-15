@@ -22,7 +22,10 @@ setup(
         'console_scripts': [
             'drone_liftoff = px4_ros_mas_com.drone_liftoff:main',
             'single_drone_liftoff = px4_ros_mas_com.single_drone_liftoff:main',
-            'drone_offboard_control = px4_ros_mas_com.drone_offboard_control:main'
+            'drone_offboard_control = px4_ros_mas_com.drone_offboard_control:main',
+            'listener_drone_pos = px4_ros_mas_com.listener_drone_pos:main',
+            'publisher=px4_ros_mas_com.publisher:main',
+            'subscriber=px4_ros_mas_com.subscriber:main'
         ],
     },
 )
