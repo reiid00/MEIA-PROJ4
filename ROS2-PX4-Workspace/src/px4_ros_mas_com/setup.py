@@ -21,7 +21,8 @@ setup(
     entry_points={
         'console_scripts': [
             'drone_liftoff = px4_ros_mas_com.drone_liftoff:main',
-            'single_drone_liftoff = px4_ros_mas_com.single_drone_liftoff:main'
+            'single_drone_liftoff = px4_ros_mas_com.single_drone_liftoff:main',
+            'drone_offboard_control = px4_ros_mas_com.drone_offboard_control:main'
         ],
     },
 )
