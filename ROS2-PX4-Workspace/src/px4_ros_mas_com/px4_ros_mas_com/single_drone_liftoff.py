@@ -10,15 +10,18 @@ from px4_msgs.msg import VehicleControlMode
 from px4_msgs.msg import VehicleLocalPosition
 from px4_msgs.msg import VehicleAttitude
 
-from std_msgs.msg import String
+from std_msgs.msg import String 
 
+import time
 import threading
+
 
 
 class DroneControl(Node):
 
-    def __init__(self, drone_num=1, x=0.0, y=0.0, z=0.0):
+    def __init__(self, drone_num=1, goal_position=[0.0,0.0,0.0], current_position=[0.0,0.0,0.0]):
         super().__init__('OffboardControl')
+        self.drone_num = drone_num
         topic_drone = f"/px4_{drone_num}"
         self.offboard_control_mode_publisher_ = self.create_publisher(OffboardControlMode,
                                                                         f"{topic_drone}/fmu/in/offboard_control_mode", 10)
@@ -30,12 +33,14 @@ class DroneControl(Node):
 
         self.target_system = drone_num+1
 
-        self.x = x
-        self.y = y
-        self.z = z
+        self.current_position = current_position
+        self.goal_position = goal_position
 
-        self.current_position = [0.0, 0.0, 0.0]
-        self.goal_position = [0.0, 0.0, 0.0]
+        self.x = current_position[0]
+        self.y = current_position[1]
+        self.z = self.goal_position[2]
+
+        self.reached_height = False
 
         timer_period = 0.1  # 100 milliseconds
         self.timer_ = self.create_timer(timer_period, self.timer_callback)
@@ -54,6 +59,13 @@ class DroneControl(Node):
         # stop the counter after reaching 11
         if (self.offboard_setpoint_counter_ < 11):
             self.offboard_setpoint_counter_ += 1
+        
+        if not self.reached_height and (abs(self.goal_position[2]) - abs(self.current_position[2])) < 1:
+            self.reached_height = True
+            self.x = self.goal_position[0]
+            self.y = self.goal_position[1]
+            self.get_logger().info(f'Drone {self.drone_num} reached preferable height of: {self.goal_position[2]}, going to destiny!')
+
 
     # Arm the vehicle
     def arm(self):
@@ -131,35 +143,39 @@ class DronePosListener(Node):
 
     def listener_callback(self, msg):
         self.current_position = [msg.x, msg.y, msg.z]
-        self.get_logger().info(f"Current pos: {self.current_position} for Drone: {self.drone_num}")
     
 
 def run_drones(drones, drones_listeners):
     while rclpy.ok():
         for drone in drones:
+            drone_listener = next((drone_listener for drone_listener in drones_listeners if drone_listener.drone_num == drone.drone_num), None)
+            drone.current_position = drone_listener.current_position
             rclpy.spin_once(drone)
         for drone in drones_listeners:
             rclpy.spin_once(drone)
 
+def listen_drones_once(drones_listeners):
+    for drone in drones_listeners:
+        rclpy.spin_once(drone)
 
 def main(args=None):
     rclpy.init(args=args)
 
-    drone_controls = []
-    offboard_control = DroneControl(2,0.0,0.0,-10.0)
-    offboard_control2 = DroneControl(1,0.0,0.0,-20.0)
-    drone_controls.append(offboard_control)
-    drone_controls.append(offboard_control2)
+
     drones_pos_listener = []
-    offboard_control = DroneControl(2,0.0,0.0,-20.0)
-    offboard_control2 = DroneControl(1,0.0,0.0,-10.0)
     drone_pos_listener = DronePosListener(2)
     drone_pos_listener2 = DronePosListener(1)
+    drones_pos_listener.append(drone_pos_listener)
+    drones_pos_listener.append(drone_pos_listener2)
+
+    listen_drones_once(drones_pos_listener)
+    drone_controls = []
+    drone_1__coordinates = []
+    offboard_control = DroneControl(2,[100.0,40.0,-10.0], drone_pos_listener2.current_position)
+    offboard_control2 = DroneControl(1,[50.0,90.0,-20.0], drone_pos_listener.current_position)
     drone_controls.append(offboard_control)
     drone_controls.append(offboard_control2)
 
-    drones_pos_listener.append(drone_pos_listener)
-    drones_pos_listener.append(drone_pos_listener2)
     drones_running = threading.Thread(target= run_drones, args=(drone_controls,drones_pos_listener,))
     drones_running.start()  
 

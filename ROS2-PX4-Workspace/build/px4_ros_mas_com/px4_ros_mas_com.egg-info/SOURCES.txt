@@ -11,6 +11,7 @@ setup.py
 px4_ros_mas_com/__init__.py
 px4_ros_mas_com/control_drones.py
 px4_ros_mas_com/drone_offboard_control.py
+px4_ros_mas_com/listener_drone_pos.py
 px4_ros_mas_com/single_drone_liftoff.py
 resource/px4_ros_mas_com
 test/test_copyright.py

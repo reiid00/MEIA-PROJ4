@@ -1,0 +1,5 @@
+  File "/home/vasco/MEIA-PROJ4/ROS2-PX4-Workspace/install/px4_ros_mas_com/lib/python3.8/site-packages/px4_ros_mas_com/single_drone_liftoff.py", line 150
+    while rclpy.ok()
+                   ^
+SyntaxError: invalid syntax
+
