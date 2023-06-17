@@ -14,7 +14,6 @@ class DroneControl(Node):
         self.target_system = drone_num+1
         self.offboard_setpoint_counter_ = 0
 
-        
         topic_drone = f"/px4_{drone_num}"
         self.offboard_control_mode_publisher_ = self.create_publisher(OffboardControlMode,
                                                                         f"{topic_drone}/fmu/in/offboard_control_mode", 10)
@@ -24,6 +23,7 @@ class DroneControl(Node):
 
         self.current_position = current_position
         self.goal_position = goal_position
+        self.goal_position[0] = self.goal_position[0] - 3 * self.drone_num
         self.x = current_position[0]
         self.y = current_position[1]
         self.z = self.goal_position[2]
@@ -55,6 +55,7 @@ class DroneControl(Node):
             self.get_logger().info(f'Drone {self.drone_num} reached preferable height of: {abs(self.goal_position[2])}, going to destiny!')
 
         # TODO: When reached destination, go to the height that qr_code is, if needed, rotate the drone, and validate the qr code
+        # TODO: After qr code, go to 2nd destination
         # TODO: Instaed of after reaching destination, set Height to Zero, go to the nearest post
 
         # Travel to the destination, set Height to zero
@@ -77,15 +78,17 @@ class DroneControl(Node):
         if (self.offboard_setpoint_counter_ < 11):
             self.offboard_setpoint_counter_ += 1
 
+    def return_current_pos(self):
+        return [self.current_position[0] + 3 * self.drone_num, self.current_position[1], self.current_position[3]]
 
     def update_current_position(self, current_position):
         self.current_position = current_position
 
     def validate_height(self, z, current_z):
-        return abs((abs(z) - abs(current_z))) < 1
+        return abs((abs(z) - abs(current_z))) < 1e-1
     
     def validate_goal_pos(self, x, y, current_x, current_y):
-        return (abs(x) - abs(current_x)) < 1 and (abs(y) - abs(current_y)) < 1
+        return (abs(x) - abs(current_x)) < 1 and (abs(y) - abs(current_y)) < 1e-1
 
 
     # Arm the vehicle

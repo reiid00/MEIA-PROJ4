@@ -23,11 +23,18 @@ def run_drones(drones, drones_listeners):
     while rclpy.ok():
         for drone in drones:
             drone_listener = next((drone_listener for drone_listener in drones_listeners if drone_listener.drone_num == drone.drone_num), None)
-            drone.current_position = drone_listener.current_position
+            drone.update_current_position(drone_listener.current_position)
             rclpy.spin_once(drone)
             if drone.disarmmed : drones.remove(drone)
         for drone in drones_listeners:
             rclpy.spin_once(drone)
+
+def get_available_drones(drones_listeners, drones_running):
+    available_drones = []
+    for drone_listener in drones_listeners:
+        drone = next((drone_running for drone_running in drones_running if drone_running.drone_num == drone_listener.drone_num), None)
+        if drone == None : available_drones.append(drone_listener)
+    return available_drones
 
 def listen_drones_once(drones_listeners):
     for drone in drones_listeners:
@@ -46,7 +53,7 @@ def main(args=None):
     listen_drones_once(drones_pos_listener)
     drone_controls = []
     drone_1__coordinates = []
-    offboard_control = DroneControl(2,[100.0,40.0,-10.0], drone_pos_listener2.current_position)
+    offboard_control = DroneControl(2,[5.0,5.0,-10.0], drone_pos_listener2.current_position)
     offboard_control2 = DroneControl(1,[50.0,90.0,-20.0], drone_pos_listener.current_position)
     drone_controls.append(offboard_control)
     drone_controls.append(offboard_control2)

@@ -11,6 +11,9 @@ class DroneControl(Node):
     def __init__(self, drone_num=1, goal_position=[0.0,0.0,0.0], current_position=[0.0,0.0,0.0]):
         super().__init__('DroneControl')
         self.drone_num = drone_num
+        self.target_system = drone_num+1
+        self.offboard_setpoint_counter_ = 0
+
         topic_drone = f"/px4_{drone_num}"
         self.offboard_control_mode_publisher_ = self.create_publisher(OffboardControlMode,
                                                                         f"{topic_drone}/fmu/in/offboard_control_mode", 10)
@@ -18,25 +21,24 @@ class DroneControl(Node):
                                                                     f"{topic_drone}/fmu/in/trajectory_setpoint", 10)
         self.vehicle_command_publisher_ = self.create_publisher(VehicleCommand, f"{topic_drone}/fmu/in/vehicle_command", 10)
 
-        self.offboard_setpoint_counter_ = 0
-
-        self.target_system = drone_num+1
-
         self.current_position = current_position
         self.goal_position = goal_position
-
+        #
+        self.goal_position[0] = self.goal_position[0] - 3 * self.drone_num
         self.x = current_position[0]
         self.y = current_position[1]
         self.z = self.goal_position[2]
 
+
         self.reached_height = False
         self.reached_goal = False
+        self.disarmmed = False
+
 
         timer_period = 0.1  # 100 milliseconds
         self.timer_ = self.create_timer(timer_period, self.timer_callback)
 
-        self.disarmmed = False
-
+        
     def timer_callback(self):
         if (self.offboard_setpoint_counter_ == 10):
             # Change to Offboard mode after 10 setpoints
@@ -44,13 +46,7 @@ class DroneControl(Node):
             # Arm the vehicle
             self.arm()
 
-        # Offboard_control_mode needs to be paired with trajectory_setpoint
-        self.publish_offboard_control_mode()
-        self.publish_trajectory_setpoint(self.x,self.y,self.z)
-
-        # stop the counter after reaching 11
-        if (self.offboard_setpoint_counter_ < 11):
-            self.offboard_setpoint_counter_ += 1
+        
         
         # Initially go to the wanted Height, set goal_postion to destination
         if not self.reached_height and self.validate_height(self.goal_position[2], self.current_position[2]):
@@ -58,7 +54,11 @@ class DroneControl(Node):
             self.x = self.goal_position[0]
             self.y = self.goal_position[1]
             self.get_logger().info(f'Drone {self.drone_num} reached preferable height of: {abs(self.goal_position[2])}, going to destiny!')
-        
+
+        # TODO: When reached destination, go to the height that qr_code is, if needed, rotate the drone, and validate the qr code
+        # TODO: After qr code, go to 2nd destination
+        # TODO: Instaed of after reaching destination, set Height to Zero, go to the nearest post
+
         # Travel to the destination, set Height to zero
         if self.reached_height and not self.reached_goal and self.validate_goal_pos(self.goal_position[0], self.goal_position[1], self.current_position[0], self.current_position[1]):
             self.reached_goal = True
@@ -70,12 +70,24 @@ class DroneControl(Node):
             self.get_logger().info(f'Drone {self.drone_num} reached the ground, disarmming!')
             self.disarm()
             self.disarmmed=True
-    
+        
+        # Offboard_control_mode needs to be paired with trajectory_setpoint
+        self.publish_offboard_control_mode()
+        self.publish_trajectory_setpoint(self.x,self.y,self.z)
+
+        # stop the counter after reaching 11
+        if (self.offboard_setpoint_counter_ < 11):
+            self.offboard_setpoint_counter_ += 1
+
+
+    def update_current_position(self, current_position):
+        self.current_position = current_position
+
     def validate_height(self, z, current_z):
-        return abs((abs(z) - abs(current_z))) < 1
+        return abs((abs(z) - abs(current_z))) < 1e-1
     
     def validate_goal_pos(self, x, y, current_x, current_y):
-        return (abs(x) - abs(current_x)) < 1 and (abs(y) - abs(current_y)) < 1
+        return (abs(x) - abs(current_x)) < 1 and (abs(y) - abs(current_y)) < 1e-1
 
 
     # Arm the vehicle
