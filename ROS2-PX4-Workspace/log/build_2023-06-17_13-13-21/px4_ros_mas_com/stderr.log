@@ -1,0 +1,5 @@
+  File "/home/vasco/MEIA-PROJ4/ROS2-PX4-Workspace/install/px4_ros_mas_com/lib/python3.8/site-packages/px4_ros_mas_com/single_drone_liftoff.py", line 74
+    if self.reached_height not self.reached_goal and self.validate_goal_pos(self.goal_position[0], self.goal_position[1], self.current_position[0], self.current_position[1]):
+                               ^
+SyntaxError: invalid syntax
+

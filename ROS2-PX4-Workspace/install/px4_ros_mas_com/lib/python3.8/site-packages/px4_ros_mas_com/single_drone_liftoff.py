@@ -20,7 +20,7 @@ import threading
 class DroneControl(Node):
 
     def __init__(self, drone_num=1, goal_position=[0.0,0.0,0.0], current_position=[0.0,0.0,0.0]):
-        super().__init__('OffboardControl')
+        super().__init__('DroneControl')
         self.drone_num = drone_num
         topic_drone = f"/px4_{drone_num}"
         self.offboard_control_mode_publisher_ = self.create_publisher(OffboardControlMode,
@@ -41,9 +41,12 @@ class DroneControl(Node):
         self.z = self.goal_position[2]
 
         self.reached_height = False
+        self.reached_goal = False
 
         timer_period = 0.1  # 100 milliseconds
         self.timer_ = self.create_timer(timer_period, self.timer_callback)
+
+        self.disarmmed = False
 
     def timer_callback(self):
         if (self.offboard_setpoint_counter_ == 10):
@@ -60,22 +63,41 @@ class DroneControl(Node):
         if (self.offboard_setpoint_counter_ < 11):
             self.offboard_setpoint_counter_ += 1
         
-        if not self.reached_height and (abs(self.goal_position[2]) - abs(self.current_position[2])) < 1:
+        # Initially go to the wanted Height, set goal_postion to destination
+        if not self.reached_height and self.validate_height(self.goal_position[2], self.current_position[2]):
             self.reached_height = True
             self.x = self.goal_position[0]
             self.y = self.goal_position[1]
-            self.get_logger().info(f'Drone {self.drone_num} reached preferable height of: {self.goal_position[2]}, going to destiny!')
+            self.get_logger().info(f'Drone {self.drone_num} reached preferable height of: {abs(self.goal_position[2])}, going to destiny!')
+        
+        # Travel to the destination, set Height to zero
+        if self.reached_height and not self.reached_goal and self.validate_goal_pos(self.goal_position[0], self.goal_position[1], self.current_position[0], self.current_position[1]):
+            self.reached_goal = True
+            self.z = 0.0
+            self.get_logger().info(f'Drone {self.drone_num} reached preferable destination, going to the ground and disarmming!')
+
+        # Disarm drone when reach floor
+        if self.reached_goal and not self.disarmmed and self.validate_height(0.0, self.current_position[2]):
+            self.get_logger().info(f'Drone {self.drone_num} reached the ground, disarmming!')
+            self.disarm()
+            self.disarmmed=True
+    
+    def validate_height(self, z, current_z):
+        return abs((abs(z) - abs(current_z))) < 1
+    
+    def validate_goal_pos(self, x, y, current_x, current_y):
+        return (abs(x) - abs(current_x)) < 1 and (abs(y) - abs(current_y)) < 1
 
 
     # Arm the vehicle
     def arm(self):
         self.publish_vehicle_command(VehicleCommand.VEHICLE_CMD_COMPONENT_ARM_DISARM, 1.0)
-        self.get_logger().info("Arm command send")
+        self.get_logger().info(f"Arm command send for Drone {self.drone_num}")
 
     # Disarm the vehicle
     def disarm(self):
         self.publish_vehicle_command(VehicleCommand.VEHICLE_CMD_COMPONENT_ARM_DISARM, 0.0)
-        self.get_logger().info("Disarm command send")
+        self.get_logger().info(f"Disarm command send for Drone {self.drone_num}")
 
     '''
 	Publish the offboard control mode.
@@ -151,6 +173,7 @@ def run_drones(drones, drones_listeners):
             drone_listener = next((drone_listener for drone_listener in drones_listeners if drone_listener.drone_num == drone.drone_num), None)
             drone.current_position = drone_listener.current_position
             rclpy.spin_once(drone)
+            if drone.disarmmed : drones.remove(drone)
         for drone in drones_listeners:
             rclpy.spin_once(drone)
 
