@@ -13,24 +13,44 @@
       <uri>model://asphalt_plane</uri>
     </include>
     <include>
-      <name>landpad_1</name>
-      <uri>model://land_pad_v2</uri>
-      <pose>5 5 0.1 0 0 0</pose>
+      <name>landpad_station_1</name>
+      <uri>model://land_pad_station</uri>
+      <pose>20 20 0.1 0 0 0</pose>
     </include>
     <include>
-      <name>landpad_2</name>
-      <uri>model://land_pad_v2</uri>
-      <pose>5 -5 0.1 0 0 0</pose>
+      <name>landpad_station_2</name>
+      <uri>model://land_pad_station</uri>
+      <pose>20 -20 0.1 0 0 0</pose>
     </include>
     <include>
-      <name>landpad_3</name>
-      <uri>model://land_pad_v2</uri>
-      <pose>-5 5 0.1 0 0 0</pose>
+      <name>landpad_station_3</name>
+      <uri>model://land_pad_station</uri>
+      <pose>-20 20 0.1 0 0 0</pose>
     </include>
     <include>
-      <name>landpad_4</name>
-      <uri>model://land_pad_v2</uri>
-      <pose>-5 -5 0.1 0 0 0</pose>
+      <name>landpad_station_4</name>
+      <uri>model://land_pad_station</uri>
+      <pose>-20 -20 0.1 0 0 0</pose>
+    </include>
+    <include>
+      <name>charging_station_1</name>
+      <uri>model://charging_station</uri>
+      <pose>20 0 0.1 0 0 0</pose>
+    </include>
+    <include>
+      <name>charging_station_2</name>
+      <uri>model://charging_station</uri>
+      <pose>0 20 0.1 0 0 0</pose>
+    </include>
+    <include>
+      <name>charging_station_3</name>
+      <uri>model://charging_station</uri>
+      <pose>-20 0 0.1 0 0 0</pose>
+    </include>
+    <include>
+      <name>charging_station_4</name>
+      <uri>model://charging_station</uri>
+      <pose>0 -20 0.1 0 0 0</pose>
     </include>
 
     <physics name='default_physics' default='0' type='ode'>
