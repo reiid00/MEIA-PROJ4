@@ -1,0 +1,21 @@
+<?xml version="1.0" ?>
+<sdf version="1.5">
+  <model name='charging_station'>
+    <include>
+      <uri>model://charging_spot</uri>
+      <pose>1 -1 0.1 0 0 0</pose>
+    </include>
+    <include>
+      <uri>model://charging_spot</uri>
+      <pose>-1 1 0.1 0 0 0</pose>
+    </include>
+    <include>
+      <uri>model://charging_spot</uri>
+      <pose>1 1 0.1 0 0 0</pose>
+    </include>
+    <include>
+      <uri>model://charging_spot</uri>
+      <pose>-1 -1 0.1 0 0 0</pose>
+    </include>
+  </model>
+</sdf>
