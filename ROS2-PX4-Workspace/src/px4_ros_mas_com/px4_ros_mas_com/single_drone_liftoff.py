@@ -36,14 +36,14 @@ def get_available_drones(drones_listeners, drones_running):
         if drone == None : available_drones.append(drone_listener)
     return available_drones
 
+
+
 def listen_drones_once(drones_listeners):
     for drone in drones_listeners:
         rclpy.spin_once(drone)
 
 def main(args=None):
     rclpy.init(args=args)
-
-
     drones_pos_listener = []
     drone_pos_listener = DroneListener(2)
     drone_pos_listener2 = DroneListener(1)

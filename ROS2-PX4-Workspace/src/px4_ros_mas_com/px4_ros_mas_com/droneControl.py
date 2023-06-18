@@ -104,6 +104,9 @@ class DroneControl(Node):
         self.goal_position = [x, y, z]
         self.z = z
         self.target_type = targetType
+    
+    
+    def calculate_angle(self):
         
 
     def return_current_pos(self):

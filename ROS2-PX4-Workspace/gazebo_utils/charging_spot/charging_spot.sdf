@@ -18,9 +18,9 @@
           </geometry>
           <material>
             <script>
-              <uri>model://land_pad_v2/materials/scripts</uri>
-              <uri>model://land_pad_v2/materials/textures</uri>
-              <name>ArucoVisualMarker0/Marker</name>
+              <uri>model://charging_spot/materials/scripts</uri>
+              <uri>model://charging_spot/materials/textures</uri>
+              <name>VascoVisualMarker0/Marker</name>
             </script>
             <ambient>1 1 1 1</ambient>
             <diffuse>1 1 1 1</diffuse>
