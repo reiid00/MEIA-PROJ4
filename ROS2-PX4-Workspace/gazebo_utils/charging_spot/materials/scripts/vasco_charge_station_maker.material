@@ -1,0 +1,13 @@
+material VascoReid/maker
+{
+	technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				charge_station_logo.png
+			}
+		}
+	}
+}
