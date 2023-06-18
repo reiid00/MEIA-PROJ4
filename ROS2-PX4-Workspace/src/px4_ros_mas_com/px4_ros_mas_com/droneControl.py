@@ -92,7 +92,11 @@ class DroneControl(Node):
             self.offboard_setpoint_counter_ += 1
 
 
-    def update_delivery(self, targetType, x, y, z):
+    def update_location(self, targetType, x, y, z):
+        # In case drone is disarmmed
+        if self.disarmmed:
+            self.publish_vehicle_command(VehicleCommand.VEHICLE_CMD_DO_SET_MODE, 1., 6.)
+            self.arm()
         self.reached_height = False
         self.reached_goal = False
         self.served_purpose = False
