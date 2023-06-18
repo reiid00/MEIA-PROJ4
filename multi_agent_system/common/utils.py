@@ -1,5 +1,5 @@
 
-from config import ENVIRONMENT, EnvironmentType
+from common.config import ENVIRONMENT, EnvironmentType
 from geopy.distance import great_circle
 
 
