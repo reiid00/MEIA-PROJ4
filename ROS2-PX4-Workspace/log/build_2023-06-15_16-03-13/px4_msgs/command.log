@@ -1,4 +1,0 @@
-Invoking command in '/home/vasco/MEIA-PROJ4/ROS2-PX4-Workspace/build/px4_msgs': /usr/bin/cmake --build /home/vasco/MEIA-PROJ4/ROS2-PX4-Workspace/build/px4_msgs -- -j12 -l12
-Invoked command in '/home/vasco/MEIA-PROJ4/ROS2-PX4-Workspace/build/px4_msgs' returned '0': /usr/bin/cmake --build /home/vasco/MEIA-PROJ4/ROS2-PX4-Workspace/build/px4_msgs -- -j12 -l12
-Invoking command in '/home/vasco/MEIA-PROJ4/ROS2-PX4-Workspace/build/px4_msgs': /usr/bin/cmake --install /home/vasco/MEIA-PROJ4/ROS2-PX4-Workspace/build/px4_msgs
-Invoked command in '/home/vasco/MEIA-PROJ4/ROS2-PX4-Workspace/build/px4_msgs' returned '0': /usr/bin/cmake --install /home/vasco/MEIA-PROJ4/ROS2-PX4-Workspace/build/px4_msgs
