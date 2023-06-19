@@ -1,10 +1,11 @@
+import datetime
 import json
 
 from common.base_agent import BaseAgent
 from common.config import (AGENT_NAMES, HEIGHT_RANGE, NUM_DRONES, DroneStatus,
                            OrderStatus)
 from common.utils import calculate_distance
-from spade.behaviour import CyclicBehaviour
+from spade.behaviour import CyclicBehaviour, PeriodicBehaviour
 from spade.message import Message
 
 
@@ -13,6 +14,7 @@ class TrafficControlStationAgent(BaseAgent):
         super().__init__(jid, password)
         self.drones = {}  # Dictionary to store drone information and status
         self.orders = {}  # Dictionary to store order information and status
+        self.pending_assignment_orders = []  # List to store pending assignment orders
 
         # Set up drones dictionary
         for i in range(1, NUM_DRONES + 1):
@@ -25,28 +27,18 @@ class TrafficControlStationAgent(BaseAgent):
                 "assigned_order": None
             }
 
-    class OrderHandlingBehaviour(CyclicBehaviour):
+    class OrderAssignmentBehaviour(PeriodicBehaviour):
         async def run(self):
-            msg = await self.receive(timeout=10)
-            if msg:
-                performative = msg.get_metadata("performative")
-                if performative == "inform_order":
-                    # Receive order details from App agent
-                    order_details = json.loads(msg.body)
-                    await self.assign_order(order_details["order_id"], order_details["details"])
-                elif performative == "inform_status":
-                    # Receive order status report from Drone agent
-                    order_status = json.loads(msg.body)
-                    await self.update_order_status(order_status["order_id"], order_status["status"])
+            # Check if there are pending assignment orders and, if so, attempt assignment of oldest in list (first element)
+            if self.agent.pending_assignment_orders:
+                pending_order = self.agent.pending_assignment_orders.pop(0)
+                await self.attempt_assign_order(pending_order)
 
-        async def assign_order(self, order_id, details):
-            self.agent.agent_say(f"Assigning order {order_id}...")
+        async def attempt_assign_order(self, pending_order):
+            order_id = pending_order["order_id"]
+            details = pending_order["details"]
 
-            # Save order
-            self.orders[order_id] = {
-                "details": details,
-                "status": OrderStatus.TO_BE_ASSIGNED.value
-            }
+            self.agent.agent_say(f"Attempting to assign order {order_id}...")
 
             # Find the best available drone (closest to dispatcher location)
             dispatcher_location = details["dispatcher_location"]
@@ -59,8 +51,12 @@ class TrafficControlStationAgent(BaseAgent):
                 )[0]
 
                 # Assign the order to the best available drone
-                self.orders[order_id]["status"] = OrderStatus.ASSIGNED.value
-                self.orders[order_id]["assigned_drone"] = closest_drone
+                self.agent.orders[order_id] = {
+                    "details": details,
+                    "status": OrderStatus.ASSIGNED.value,
+                    "assigned_drone": closest_drone
+                }
+
                 self.agent.agent_say(f"Order {order_id} assigned to drone: {closest_drone}")
 
                 # Send route instructions to the assigned drone
@@ -74,16 +70,40 @@ class TrafficControlStationAgent(BaseAgent):
                 await self.send_assigned_route_instructions(closest_drone, route_instructions)
 
                 # Update order status to "ON_THE_WAY_TO_DISPATCHER"
-                self.orders[order_id]["status"] = OrderStatus.ON_THE_WAY_TO_DISPATCHER.value
+                self.agent.orders[order_id]["status"] = OrderStatus.ON_THE_WAY_TO_DISPATCHER.value
             else:
-                self.agent.agent_say(f'No drones available. Unable to fulfill order {order_id}.')     
+                self.agent.pending_assignment_orders.insert(0, pending_order)
+                self.agent.agent_say(f'There are no drones available. Reattempt will occur in 5 seconds.')     
 
         async def send_assigned_route_instructions(self, drone_id, route_instructions):
             route_msg = Message(to=f'{AGENT_NAMES["DRONE"]}{drone_id}@localhost')
-            route_msg.set_metadata("performative", "inform_route")
+            route_msg.set_metadata("performative", "inform_route_instructions")
             route_msg.body = json.dumps(route_instructions)
             await self.send(route_msg)
             self.agent.agent_say(f'Route instructions sent to drone {drone_id}.')
+            
+    class OrderHandlingBehaviour(CyclicBehaviour):
+        async def run(self):
+            msg = await self.receive(timeout=10)
+            if msg:
+                performative = msg.get_metadata("performative")
+                if performative == "inform_order":
+                    # Receive order details from App agent
+                    order_details = json.loads(msg.body)
+                    await self.save_new_order(order_details["order_id"], order_details["details"])
+                elif performative == "inform_status":
+                    # Receive order status report from Drone agent
+                    order_status = json.loads(msg.body)
+                    await self.update_order_status(order_status["order_id"], order_status["status"])
+
+        async def save_new_order(self, order_id, details):
+            self.agent.agent_say(f"Saved new order {order_id} in pending assignment orders list")
+
+            # Save new order in pending assignment orders list
+            self.agent.pending_assignment_orders.append({
+                "order_id": order_id,
+                "details": details
+            })
 
         async def update_order_status(self, order_id, new_status):
             if order_id in self.agent.orders:
@@ -178,6 +198,8 @@ class TrafficControlStationAgent(BaseAgent):
 
     async def setup(self):
         await super().setup()
+        start_at = datetime.datetime.now() + datetime.timedelta(seconds=5)
+        self.add_behaviour(self.OrderAssignmentBehaviour(period=5, start_at=start_at))
         self.add_behaviour(self.OrderHandlingBehaviour())
         self.add_behaviour(self.DroneLocationHandlingBehaviour())
         self.add_behaviour(self.DroneChargingHandlingBehaviour())

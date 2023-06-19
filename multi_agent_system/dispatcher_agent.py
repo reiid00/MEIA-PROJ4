@@ -19,7 +19,7 @@ class DispatcherAgent(BaseAgent):
         async def send_order_to_dispatcher_api(self, order_id, details):
             # Simulate sending order details to the Dispatcher API
             # In this example, we simulate by logging the order details
-            self.agent.agent_say(f"Order sent to Dispatcher API: {DISPATCHER_API_URL}\nOrder {order_id}")
+            self.agent.agent_say(f"Order {order_id} sent to Dispatcher API: {DISPATCHER_API_URL}")
 
     async def setup(self):
         await super().setup()

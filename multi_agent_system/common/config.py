@@ -18,7 +18,7 @@ AGENT_NAMES = {
 
 # Define external configurations
 DISPATCHER_API_URL = "https://dispatcher.simulation/orders"
-APP_API_URL = "https://app.simulation/orders"
+APP_API_URL = "http://localhost:5001"
 
 # Define utils configurations
 

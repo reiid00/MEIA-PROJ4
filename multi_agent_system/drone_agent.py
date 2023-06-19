@@ -1,9 +1,10 @@
+import datetime
 import json
 
 from common.base_agent import BaseAgent
 from common.config import (AGENT_NAMES, OPTIMUM_BATTERY_RANGE, DroneStatus,
                            DroneTargetType, OrderStatus)
-from spade.behaviour import CyclicBehaviour
+from spade.behaviour import CyclicBehaviour, PeriodicBehaviour
 from spade.message import Message
 
 
@@ -16,7 +17,7 @@ class DroneAgent(BaseAgent):
         self.targets = [] # Should follow model { type: DroneTargetType, location: { latitude, longitude }, route_height, order_id (optional), spot_id (optional)}
         self.battery_percentage = 100
 
-    class LocationReportingBehaviour(CyclicBehaviour):
+    class LocationReportingBehaviour(PeriodicBehaviour):
         async def run(self):
             # Send current location report to Traffic Control Station Agent
             location_msg = Message(to=f'{AGENT_NAMES["TRAFFIC_CONTROL_STATION"]}@localhost')
@@ -24,7 +25,7 @@ class DroneAgent(BaseAgent):
             location_msg.body = json.dumps({"drone_id": self.agent.drone_id, "location": self.agent.location})
             await self.send(location_msg)
 
-    class BatteryHandlingBehaviour(CyclicBehaviour):
+    class BatteryHandlingBehaviour(PeriodicBehaviour):
         async def run(self):
             # Check if currently charging
             if self.agent.status == DroneStatus.CHARGING.value:
@@ -214,8 +215,8 @@ class DroneAgent(BaseAgent):
 
     async def setup(self):
         await super().setup()
-        print("OK")
-        self.add_behaviour(self.LocationReportingBehaviour())
-        self.add_behaviour(self.BatteryHandlingBehaviour())
+        start_at = datetime.datetime.now() + datetime.timedelta(seconds=5)
+        self.add_behaviour(self.LocationReportingBehaviour(period=5, start_at=start_at))
+        self.add_behaviour(self.BatteryHandlingBehaviour(period=5, start_at=start_at))
         self.add_behaviour(self.ChargingHandlingBehaviour())
         self.add_behaviour(self.RouteHandlingBehaviour())

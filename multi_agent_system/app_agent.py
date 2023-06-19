@@ -1,28 +1,29 @@
+import datetime
 import json
 
-from apis.order_manager import pending_orders, pending_orders_lock
+import requests
 from common.base_agent import BaseAgent
 from common.config import AGENT_NAMES, APP_API_URL
-from spade.behaviour import CyclicBehaviour
+from spade.behaviour import CyclicBehaviour, PeriodicBehaviour
 from spade.message import Message
 
 
 class AppAgent(BaseAgent):
-    class OrderRequestBehaviour(CyclicBehaviour):
+    class OrderRequestBehaviour(PeriodicBehaviour):
         async def run(self):
-            print("tes")
             # Check if there are pending orders to be processed
             pending_order = self.get_pending_order()
             if pending_order:
                 await self.send_order_to_dispatcher(pending_order)
                 await self.send_order_to_traffic_control_station(pending_order)
-                self.agent.agent_say(f"Order details sent to TrafficControlStationAgent and DispatcherAgent:\n{pending_order}")
-     
+                order_id = pending_order["order_id"]
+                self.agent.agent_say(f"Order {order_id} details sent to TrafficControlStationAgent and DispatcherAgent")
+                
         def get_pending_order(self):
-            with pending_orders_lock:
-                if pending_orders:
-                    # Remove the first pending order from the list and return it
-                    pending_order = pending_orders.pop(0)
+            response = requests.get(f'{APP_API_URL}/next_pending_order')
+            if response.status_code == 200:
+                pending_order = response.json().get('next_pending_order', [])
+                if pending_order:
                     return pending_order
             return None
 
@@ -48,12 +49,20 @@ class AppAgent(BaseAgent):
                     await self.send_order_status_report_to_app_api(order_status["order_id"], order_status["status"])
 
         async def send_order_status_report_to_app_api(self, order_id, status):
-            # Simulate sending order status report to the App API
-            # In this example, we simulate by logging the order status
-            self.agent.agent_say(f"Order status update sent to App API: {APP_API_URL}\nOrder {order_id} - Status {status}")
+            try:
+                response = requests.post(f'{APP_API_URL}/update_order_status', json={
+                    "order_id": order_id,
+                    "status": status
+                })
+                if response.status_code == 200:
+                    self.agent.agent_say(f"Order status update sent to App API: \nOrder {order_id} - Status {status}")
+                else:
+                    self.agent.agent_say(f"Failed to send order status update to App API. Error: {response.text}")
+            except requests.RequestException as e:
+                self.agent.agent_say(f"Failed to send order status update to App API. Exception: {e}")
 
     async def setup(self):
-        print("tes2")
         await super().setup()
-        self.add_behaviour(self.OrderRequestBehaviour())
+        start_at = datetime.datetime.now() + datetime.timedelta(seconds=5)
+        self.add_behaviour(self.OrderRequestBehaviour(period=5, start_at=start_at))
         self.add_behaviour(self.OrderStatusReportBehaviour())
