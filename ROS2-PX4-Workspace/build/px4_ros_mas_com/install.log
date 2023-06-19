@@ -1,16 +1,10 @@
 /home/vasco/MEIA-PROJ4/ROS2-PX4-Workspace/install/px4_ros_mas_com/lib/python3.8/site-packages/px4_ros_mas_com/droneListener.py
 /home/vasco/MEIA-PROJ4/ROS2-PX4-Workspace/install/px4_ros_mas_com/lib/python3.8/site-packages/px4_ros_mas_com/__init__.py
 /home/vasco/MEIA-PROJ4/ROS2-PX4-Workspace/install/px4_ros_mas_com/lib/python3.8/site-packages/px4_ros_mas_com/droneControl.py
-/home/vasco/MEIA-PROJ4/ROS2-PX4-Workspace/install/px4_ros_mas_com/lib/python3.8/site-packages/px4_ros_mas_com/drone_offboard_control.py
-/home/vasco/MEIA-PROJ4/ROS2-PX4-Workspace/install/px4_ros_mas_com/lib/python3.8/site-packages/px4_ros_mas_com/listener_drone_pos.py
-/home/vasco/MEIA-PROJ4/ROS2-PX4-Workspace/install/px4_ros_mas_com/lib/python3.8/site-packages/px4_ros_mas_com/control_drones.py
 /home/vasco/MEIA-PROJ4/ROS2-PX4-Workspace/install/px4_ros_mas_com/lib/python3.8/site-packages/px4_ros_mas_com/single_drone_liftoff.py
 /home/vasco/MEIA-PROJ4/ROS2-PX4-Workspace/install/px4_ros_mas_com/lib/python3.8/site-packages/px4_ros_mas_com/__pycache__/droneListener.cpython-38.pyc
 /home/vasco/MEIA-PROJ4/ROS2-PX4-Workspace/install/px4_ros_mas_com/lib/python3.8/site-packages/px4_ros_mas_com/__pycache__/__init__.cpython-38.pyc
 /home/vasco/MEIA-PROJ4/ROS2-PX4-Workspace/install/px4_ros_mas_com/lib/python3.8/site-packages/px4_ros_mas_com/__pycache__/droneControl.cpython-38.pyc
-/home/vasco/MEIA-PROJ4/ROS2-PX4-Workspace/install/px4_ros_mas_com/lib/python3.8/site-packages/px4_ros_mas_com/__pycache__/drone_offboard_control.cpython-38.pyc
-/home/vasco/MEIA-PROJ4/ROS2-PX4-Workspace/install/px4_ros_mas_com/lib/python3.8/site-packages/px4_ros_mas_com/__pycache__/listener_drone_pos.cpython-38.pyc
-/home/vasco/MEIA-PROJ4/ROS2-PX4-Workspace/install/px4_ros_mas_com/lib/python3.8/site-packages/px4_ros_mas_com/__pycache__/control_drones.cpython-38.pyc
 /home/vasco/MEIA-PROJ4/ROS2-PX4-Workspace/install/px4_ros_mas_com/lib/python3.8/site-packages/px4_ros_mas_com/__pycache__/single_drone_liftoff.cpython-38.pyc
 /home/vasco/MEIA-PROJ4/ROS2-PX4-Workspace/install/px4_ros_mas_com/share/ament_index/resource_index/packages/px4_ros_mas_com
 /home/vasco/MEIA-PROJ4/ROS2-PX4-Workspace/install/px4_ros_mas_com/share/px4_ros_mas_com/package.xml

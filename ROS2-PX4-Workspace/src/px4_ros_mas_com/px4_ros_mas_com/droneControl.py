@@ -1,7 +1,7 @@
 import rclpy
 from rclpy.node import Node
 from rclpy.clock import Clock
-
+from enum import Enum
 from px4_msgs.msg import OffboardControlMode
 from px4_msgs.msg import TrajectorySetpoint
 from px4_msgs.msg import VehicleCommand
@@ -14,7 +14,7 @@ class DroneTargetType(Enum):
 
 class DroneControl(Node):
 
-    def __init__(self, drone_num=1, goal_position=[0.0,0.0,0.0], current_position=[0.0,0.0,0.0], target_type):
+    def __init__(self, drone_num=1, goal_position=[0.0,0.0,0.0], current_position=[0.0,0.0,0.0], target_type = "TESTING"):
         super().__init__('DroneControl')
         self.drone_num = drone_num
         self.target_system = drone_num+1
@@ -105,9 +105,9 @@ class DroneControl(Node):
         self.z = z
         self.target_type = targetType
     
-    
+
     def calculate_angle(self):
-        
+        pass
 
     def return_current_pos(self):
         return [self.current_position[0] + 3 * self.drone_num, self.current_position[1], self.current_position[3]]

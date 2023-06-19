@@ -1,18 +1,25 @@
 import rclpy
 from rclpy.node import Node
 from rclpy.clock import Clock
-
+from enum import Enum
 from px4_msgs.msg import OffboardControlMode
 from px4_msgs.msg import TrajectorySetpoint
 from px4_msgs.msg import VehicleCommand
 
+class DroneTargetType(Enum):
+    DISPATCHER = 1
+    CUSTOMER = 2
+    CHARGING_STATION = 3
+
+
 class DroneControl(Node):
 
-    def __init__(self, drone_num=1, goal_position=[0.0,0.0,0.0], current_position=[0.0,0.0,0.0]):
+    def __init__(self, drone_num=1, goal_position=[0.0,0.0,0.0], current_position=[0.0,0.0,0.0], target_type = "TESTING"):
         super().__init__('DroneControl')
         self.drone_num = drone_num
         self.target_system = drone_num+1
         self.offboard_setpoint_counter_ = 0
+        self.target_type = target_type
 
         topic_drone = f"/px4_{drone_num}"
         self.offboard_control_mode_publisher_ = self.create_publisher(OffboardControlMode,
@@ -23,15 +30,15 @@ class DroneControl(Node):
 
         self.current_position = current_position
         self.goal_position = goal_position
-        #
         self.goal_position[0] = self.goal_position[0] - 3 * self.drone_num
         self.x = current_position[0]
         self.y = current_position[1]
         self.z = self.goal_position[2]
-
+        self.final_height = 2.0 # Can Change
 
         self.reached_height = False
         self.reached_goal = False
+        self.served_purpose = False
         self.disarmmed = False
 
 
@@ -45,32 +52,37 @@ class DroneControl(Node):
             self.publish_vehicle_command(VehicleCommand.VEHICLE_CMD_DO_SET_MODE, 1., 6.)
             # Arm the vehicle
             self.arm()
-
-        
-        
         # Initially go to the wanted Height, set goal_postion to destination
         if not self.reached_height and self.validate_height(self.goal_position[2], self.current_position[2]):
             self.reached_height = True
             self.x = self.goal_position[0]
             self.y = self.goal_position[1]
             self.get_logger().info(f'Drone {self.drone_num} reached preferable height of: {abs(self.goal_position[2])}, going to destiny!')
-
-        # TODO: When reached destination, go to the height that qr_code is, if needed, rotate the drone, and validate the qr code
-        # TODO: After qr code, go to 2nd destination
-        # TODO: Instaed of after reaching destination, set Height to Zero, go to the nearest post
-
+        
         # Travel to the destination, set Height to zero
         if self.reached_height and not self.reached_goal and self.validate_goal_pos(self.goal_position[0], self.goal_position[1], self.current_position[0], self.current_position[1]):
             self.reached_goal = True
-            self.z = 0.0
+            self.z = self.final_height
             self.get_logger().info(f'Drone {self.drone_num} reached preferable destination, going to the ground and disarmming!')
 
+        ###### After reaching position, depending on the target type, the drone does different stuff
+
+
         # Disarm drone when reach floor
-        if self.reached_goal and not self.disarmmed and self.validate_height(0.0, self.current_position[2]):
-            self.get_logger().info(f'Drone {self.drone_num} reached the ground, disarmming!')
-            self.disarm()
-            self.disarmmed=True
-        
+        if self.reached_goal and self.validate_height(self.final_height, self.current_position[2]):
+            if self.target_type == DroneTargetType.DISPATCHER.value and not self.served_purpose:
+                self.served_purpose = True
+                self.send_request("pickup")
+                self.get_logger().info(f'Drone {self.drone_num} reached dispatcher height, waiting for package pickup!')
+            if self.target_type == DroneTargetType.CUSTOMER.value and not self.served_purpose:
+                self.served_purpose = True
+                self.send_request("deliver")
+                self.get_logger().info(f'Drone {self.drone_num} reached customer height, waiting for package deliver!')
+            elif not self.disarmmed and self.target_type != self.target_type == DroneTargetType.CUSTOMER.value and self.target_type != self.target_type == DroneTargetType.DISPATCHER.value:
+                self.get_logger().info(f'Drone {self.drone_num} reached the ground, disarmming!')
+                self.disarm()
+                self.disarmmed=True
+
         # Offboard_control_mode needs to be paired with trajectory_setpoint
         self.publish_offboard_control_mode()
         self.publish_trajectory_setpoint(self.x,self.y,self.z)
@@ -79,6 +91,26 @@ class DroneControl(Node):
         if (self.offboard_setpoint_counter_ < 11):
             self.offboard_setpoint_counter_ += 1
 
+
+    def update_location(self, targetType, x, y, z):
+        # In case drone is disarmmed
+        if self.disarmmed:
+            self.publish_vehicle_command(VehicleCommand.VEHICLE_CMD_DO_SET_MODE, 1., 6.)
+            self.arm()
+        self.reached_height = False
+        self.reached_goal = False
+        self.served_purpose = False
+
+        self.goal_position = [x, y, z]
+        self.z = z
+        self.target_type = targetType
+    
+
+    def calculate_angle(self):
+        pass
+
+    def return_current_pos(self):
+        return [self.current_position[0] + 3 * self.drone_num, self.current_position[1], self.current_position[3]]
 
     def update_current_position(self, current_position):
         self.current_position = current_position
