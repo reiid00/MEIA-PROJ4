@@ -14,6 +14,7 @@ from px4_msgs.msg import VehicleAttitude
 from .droneControl import DroneControl
 from .droneListener import DroneListener
 from .landPadListener import LandPadListener
+from .chargingSpotListener import ChargingSpotListener
 
 from std_msgs.msg import String 
 
@@ -21,7 +22,7 @@ import time
 import threading
 
 
-def run_drones(drones, drones_listeners, land_pad_listeners):
+def run_drones(drones, drones_listeners, land_pad_listeners, charging_station_listeners):
     while rclpy.ok():
         for drone in drones:
             drone_listener = next((drone_listener for drone_listener in drones_listeners if drone_listener.drone_num == drone.drone_num), None)
@@ -32,6 +33,9 @@ def run_drones(drones, drones_listeners, land_pad_listeners):
             rclpy.spin_once(drone)
         for land_pad in land_pad_listeners:
             rclpy.spin_once(land_pad)
+        for charging_station in charging_station_listeners:
+            rclpy.spin_once(charging_station)
+
 
 def get_available_drones(drones_listeners, drones_running):
     available_drones = []
@@ -57,18 +61,17 @@ def main(args=None):
     listen_drones_once(drones_pos_listener)
     drone_controls = []
     offboard_control = DroneControl(2,[19.75,19.75,-10.0], drone_pos_listener2.current_position)
-    offboard_control2 = DroneControl(1,[50.0,90.0,-20.0], drone_pos_listener.current_position)
+    offboard_control2 = DroneControl(1,[19.6,0.3,-10.0], drone_pos_listener.current_position)
     drone_controls.append(offboard_control)
     drone_controls.append(offboard_control2)
 
     land_pad_listeners = []
-    land_pad_listener = LandPadListener(1,4)
-    land_pad_listener_2 = LandPadListener(1,2)
-    land_pad_listeners.append(land_pad_listener)
-    land_pad_listeners.append(land_pad_listener_2)
-
-
-    drones_running = threading.Thread(target= run_drones, args=(drone_controls,drones_pos_listener,land_pad_listeners,))
+    charging_station_listeners = []
+    for i in range(1,5):
+        for j in range(1,5):
+            land_pad_listeners.append(LandPadListener(i,j))
+            charging_station_listeners.append(ChargingSpotListener(i,j))
+    drones_running = threading.Thread(target= run_drones, args=(drone_controls,drones_pos_listener,land_pad_listeners,charging_station_listeners,))
     drones_running.start()  
 
 
