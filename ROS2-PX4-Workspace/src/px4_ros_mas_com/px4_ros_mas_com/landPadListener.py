@@ -2,7 +2,7 @@ import rclpy
 from rclpy.node import Node
 from rclpy.qos import QoSProfile, HistoryPolicy, ReliabilityPolicy, DurabilityPolicy
 from std_msgs.msg import String
-
+import re
 
 class LandPadListener(Node):
 
@@ -10,6 +10,9 @@ class LandPadListener(Node):
         super().__init__('land_pad_listener')
 
         self.drone_num_occupying=0
+
+        self.landpad_station_num = landpad_station_num
+        self.landpad_num = landpad_num
 
         self.occupied = False
 
@@ -23,20 +26,21 @@ class LandPadListener(Node):
     def listener_callback(self, msg):
         if self.ver_drone_50 > 50:
             self.ver_drone_50 = 0
-            occupied = False
-        contact_1, contact_2 = msg.data.split(",")
-        
-        self.drone_num_occupying = self.validate_drone(contact_1, contact_2)
+            if self.occupied:
+                self.get_logger().info(f'Land Pad: {self.landpad_num} on Station: {self.landpad_station_num} AVAILABLE')
+            self.occupied = False
+        self.drone_num_occupying = self.validate_string(msg.data)
         if self.drone_num_occupying > 0:
-            print(f'Drone attached, Drone num: {self.drone_num_occupying}')
-            occupied = True
+            if not self.occupied:
+                self.get_logger().info(f'Drone {self.drone_num_occupying} Attached to Land Pad: {self.landpad_num} on Station: {self.landpad_station_num}')
+                self.occupied = True
         else:
             self.ver_drone_50+=1
     
-    def validate_drone(self, string, string2):
-        if self.drone_name in string:
-            return int(''.join(filter(str.isdigit, string)))
-        elif self.drone_name in string2:
-            return int(''.join(filter(str.isdigit, string2)))
-        return 0
+    def validate_string(self, input_string):
+        match = re.search(r'iris_(\d+)', input_string)
+        if match:
+            return int(match.group(1))
+        else:
+            return 0
         

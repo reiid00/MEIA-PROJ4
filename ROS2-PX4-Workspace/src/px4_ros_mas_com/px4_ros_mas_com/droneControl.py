@@ -78,7 +78,7 @@ class DroneControl(Node):
                 self.served_purpose = True
                 self.send_request("deliver")
                 self.get_logger().info(f'Drone {self.drone_num} reached customer height, waiting for package deliver!')
-            elif not self.disarmmed and self.target_type != self.target_type == DroneTargetType.CUSTOMER.value and self.target_type != self.target_type == DroneTargetType.DISPATCHER.value:
+            elif not self.disarmmed and self.target_type != DroneTargetType.CUSTOMER.value and self.target_type != DroneTargetType.DISPATCHER.value:
                 self.get_logger().info(f'Drone {self.drone_num} reached the ground, disarmming!')
                 self.disarm()
                 self.disarmmed=True
