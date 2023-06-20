@@ -27,13 +27,14 @@ class LandPadListener(Node):
         if self.ver_drone_50 > 50:
             self.ver_drone_50 = 0
             if self.occupied:
-                self.get_logger().info(f'Land Pad: {self.landpad_num} on Station: {self.landpad_station_num} AVAILABLE')
-            self.occupied = False
+                self.get_logger().info(f'Land Pad {self.landpad_num} on Station {self.landpad_station_num} AVAILABLE')
+                self.occupied = False
         self.drone_num_occupying = self.validate_string(msg.data)
         if self.drone_num_occupying > 0:
             if not self.occupied:
-                self.get_logger().info(f'Drone {self.drone_num_occupying} Attached to Land Pad: {self.landpad_num} on Station: {self.landpad_station_num}')
+                self.get_logger().info(f'Drone {self.drone_num_occupying} Attached to Land Pad {self.landpad_num} on Station {self.landpad_station_num}')
                 self.occupied = True
+                self.ver_drone_50 = 0
         else:
             self.ver_drone_50+=1
     

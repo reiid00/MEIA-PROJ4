@@ -41,12 +41,15 @@ class DroneControl(Node):
         self.served_purpose = False
         self.disarmmed = False
 
+        # timer
+
 
         timer_period = 0.1  # 100 milliseconds
         self.timer_ = self.create_timer(timer_period, self.timer_callback)
 
         
     def timer_callback(self):
+
         if (self.offboard_setpoint_counter_ == 10):
             # Change to Offboard mode after 10 setpoints
             self.publish_vehicle_command(VehicleCommand.VEHICLE_CMD_DO_SET_MODE, 1., 6.)
@@ -65,8 +68,6 @@ class DroneControl(Node):
             self.z = self.final_height
             self.get_logger().info(f'Drone {self.drone_num} reached preferable destination, going to the ground and disarmming!')
 
-        ###### After reaching position, depending on the target type, the drone does different stuff
-
 
         # Disarm drone when reach floor
         if self.reached_goal and self.validate_height(self.final_height, self.current_position[2]):
@@ -78,6 +79,7 @@ class DroneControl(Node):
                 self.served_purpose = True
                 self.send_request("deliver")
                 self.get_logger().info(f'Drone {self.drone_num} reached customer height, waiting for package deliver!')
+                #Start Timer
             elif not self.disarmmed and self.target_type != DroneTargetType.CUSTOMER.value and self.target_type != DroneTargetType.DISPATCHER.value:
                 self.get_logger().info(f'Drone {self.drone_num} reached the ground, disarmming!')
                 self.disarm()
