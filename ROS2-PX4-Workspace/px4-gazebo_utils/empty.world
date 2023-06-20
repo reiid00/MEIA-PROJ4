@@ -52,7 +52,7 @@
       <uri>model://charging_station</uri>
       <pose>0 -20 0.1 0 0 0</pose>
     </include>
-
+    <plugin name='gazebo_station_republisher' filename='libgazebo_station_republisher.so'> </plugin>
     <physics name='default_physics' default='0' type='ode'>
       <gravity>0 0 -9.8066</gravity>
       <ode>

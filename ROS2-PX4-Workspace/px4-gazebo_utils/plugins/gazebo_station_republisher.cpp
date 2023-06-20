@@ -17,7 +17,7 @@ namespace gazebo
       std::shared_ptr<rclcpp::Node> node;
       std::vector<rclcpp::Publisher<std_msgs::msg::String>::SharedPtr> landPadPublishers;
       std::vector<rclcpp::Publisher<std_msgs::msg::String>::SharedPtr> chargingStationPublishers;
-      rclcpp::Publisher<std_msgs::msg::String>::SharedPtr publisher_;
+      std::vector<transport::SubscriberPtr> subs;
       transport::NodePtr gznode;
       transport::SubscriberPtr sub;
       int pad = 0;
@@ -44,8 +44,8 @@ namespace gazebo
           for (int pad = 1; pad < 5; ++pad)
           {
             std::string topic = "/landpad_station_" + std::to_string(station) + "/land_pad_" + std::to_string(pad) + "/contacts";
-            this->publisher_ = node->create_publisher<std_msgs::msg::String>(topic, 10);
-            this->landPadPublishers.push_back(this->publisher_);
+            auto publisher = node->create_publisher<std_msgs::msg::String>(topic, 10);
+            this->landPadPublishers.push_back(publisher);
           }
         }
 
@@ -55,8 +55,8 @@ namespace gazebo
           for (int spot = 1; spot < 5; ++spot)
           {
             std::string topic = "/charging_station_" + std::to_string(station) + "/charging_spot_" + std::to_string(spot) + "/contacts";
-            this->publisher_ = node->create_publisher<std_msgs::msg::String>(topic, 10);
-            this->chargingStationPublishers.push_back(this->publisher_);
+            auto publisher = node->create_publisher<std_msgs::msg::String>(topic, 10);
+            this->chargingStationPublishers.push_back(publisher);
           }
         }
 
@@ -76,7 +76,6 @@ namespace gazebo
 
       void OnUpdate(const common::UpdateInfo & /*_info*/)
       {
-
         elapsedTime += world->Physics()->GetMaxStepSize();
 
         if (elapsedTime >= updateRate)
@@ -90,14 +89,13 @@ namespace gazebo
             for (int spot = 1; spot < 5; ++spot)
             {
               std::string topic = "/gazebo/default/charging_station_" + std::to_string(station) + "/charging_spot_" + std::to_string(spot) + "/link/my_contact/contacts";
-              std::cout << topic << std::endl;
-              this->sub = this->gznode->Subscribe(topic, &RepublishPlugin::ChargingStationContactCallback, this);
+              subs.push_back(this->gznode->Subscribe(topic, &RepublishPlugin::ChargingStationContactCallback, this));
             }
+
             for (int pad = 1; pad < 5; ++pad)
             {
               std::string topic = "/gazebo/default/landpad_station_" + std::to_string(station) + "/land_pad_" + std::to_string(pad) + "/link/my_contact/contacts";
-              std::cout << topic << std::endl;
-              this->sub = this->gznode->Subscribe(topic, &RepublishPlugin::LandPadContactCallback, this);
+              subs.push_back(this->gznode->Subscribe(topic, &RepublishPlugin::LandPadContactCallback, this));
             }
           }
         }
@@ -112,8 +110,8 @@ namespace gazebo
           this->pad = 0;
         }
 
+        int m = 0;
 
-        std::cout << "size of msg: " << msg->contact_size() << '\n';
 
         // Iterate through each contact in the message
         for (int i = 0; i < msg->contact_size(); ++i)
@@ -123,13 +121,13 @@ namespace gazebo
           // Concatenate collision1 and collision2 with a separator (e.g., comma)
           std::string contactInfo = contact.collision1() + "," + contact.collision2();
 
-          std::cout << "Concact Info: " << contactInfo << '\n';
+          m = calculateValue(contact.collision1(), contact.collision2(), false);
 
           // Append the contact info to the contact string
           contactString.data += contactInfo + "\n";
         }
         // Publish the contact string to the corresponding rclcpp topic for land pads
-        this->landPadPublishers[this->pad]->publish(contactString);
+        this->landPadPublishers[m]->publish(contactString);
         this->pad++;
 
       }
@@ -141,6 +139,9 @@ namespace gazebo
         {
           this->spot = 0;
         }
+
+        int m = 0;
+
         // Iterate through each contact in the message
         for (int i = 0; i < msg->contact_size(); ++i)
         {
@@ -149,13 +150,51 @@ namespace gazebo
           // Concatenate collision1 and collision2 with a separator (e.g., comma)
           std::string contactInfo = contact.collision1() + "," + contact.collision2();
 
+          m = calculateValue(contact.collision1(), contact.collision2(), true);
+
           // Append the contact info to the contact string
           contactString.data += contactInfo + "\n";
         }
 
         // Publish the contact string to the corresponding rclcpp topic for charging stations
-        this->chargingStationPublishers[this->spot]->publish(contactString);
+        this->chargingStationPublishers[m]->publish(contactString);
         this->spot++;
+      }
+
+      int calculateValue(const std::string& contact1, const std::string& contact2, bool isChargingType = false)
+      {
+          std::string prefix = (isChargingType) ? "charging_station" : "landpad_station";
+
+          std::string contactToCheck;
+          if (contact1.find(prefix) == 0)
+              contactToCheck = contact1;
+          else if (contact2.find(prefix) == 0)
+              contactToCheck = contact2;
+          else
+              return 0; // No contact with the desired prefix was found
+
+        // Find the positions of the first and second colons
+          size_t firstColonPos = contactToCheck.find(':');
+          if (firstColonPos == std::string::npos)
+              return 0; // Invalid contact format
+
+          size_t secondColonPos = contactToCheck.find(':', firstColonPos + 2);
+          if (secondColonPos == std::string::npos)
+              return 0; // Invalid contact format
+
+          // Extract the parent and child indexes
+          std::string parentIndexStr = contactToCheck.substr(prefix.length() + 1, firstColonPos - prefix.length() - 1);
+          std::string childIndexStr = contactToCheck.substr(secondColonPos - 1);
+
+          try {
+              int parentIndex = std::stoi(parentIndexStr);
+              int childIndex = std::stoi(childIndexStr);
+
+              return ((parentIndex - 1) * 4) + childIndex -1;
+          }
+          catch (std::exception& e) {
+              return 0; // Invalid index format
+          }
       }
   };
   GZ_REGISTER_WORLD_PLUGIN(RepublishPlugin)
