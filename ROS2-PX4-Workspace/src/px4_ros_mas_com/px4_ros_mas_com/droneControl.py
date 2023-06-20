@@ -116,7 +116,7 @@ class DroneControl(Node):
         self.current_position = current_position
 
     def validate_height(self, z, current_z):
-        return abs((abs(z) - abs(current_z))) < 1e-1
+        return abs((abs(z) - abs(current_z))) < 2e-1
     
     def validate_goal_pos(self, x, y, current_x, current_y):
         return (abs(x) - abs(current_x)) < 1 and (abs(y) - abs(current_y)) < 1e-1

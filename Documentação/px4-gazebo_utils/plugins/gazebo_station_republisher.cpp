@@ -59,6 +59,21 @@ namespace gazebo
             this->chargingStationPublishers.push_back(publisher);
           }
         }
+        // Republish charging station topics
+          for (int station = 1; station < 5; ++station)
+          {
+            for (int spot = 1; spot < 5; ++spot)
+            {
+              std::string topic = "/gazebo/default/charging_station_" + std::to_string(station) + "/charging_spot_" + std::to_string(spot) + "/link/my_contact/contacts";
+              subs.push_back(this->gznode->Subscribe(topic, &RepublishPlugin::ChargingStationContactCallback, this));
+            }
+
+            for (int pad = 1; pad < 5; ++pad)
+            {
+              std::string topic = "/gazebo/default/landpad_station_" + std::to_string(station) + "/land_pad_" + std::to_string(pad) + "/link/my_contact/contacts";
+              subs.push_back(this->gznode->Subscribe(topic, &RepublishPlugin::LandPadContactCallback, this));
+            }
+          }
 
         std::cout << "size of land pads: " << this->landPadPublishers.size() << '\n';
         std::cout << "size of charging stations: " << this->chargingStationPublishers.size() << '\n';
@@ -76,29 +91,7 @@ namespace gazebo
 
       void OnUpdate(const common::UpdateInfo & /*_info*/)
       {
-        elapsedTime += world->Physics()->GetMaxStepSize();
 
-        if (elapsedTime >= updateRate)
-        {
-          // Reset the elapsed time
-          elapsedTime = 0.0;
-
-          // Republish charging station topics
-          for (int station = 1; station < 5; ++station)
-          {
-            for (int spot = 1; spot < 5; ++spot)
-            {
-              std::string topic = "/gazebo/default/charging_station_" + std::to_string(station) + "/charging_spot_" + std::to_string(spot) + "/link/my_contact/contacts";
-              subs.push_back(this->gznode->Subscribe(topic, &RepublishPlugin::ChargingStationContactCallback, this));
-            }
-
-            for (int pad = 1; pad < 5; ++pad)
-            {
-              std::string topic = "/gazebo/default/landpad_station_" + std::to_string(station) + "/land_pad_" + std::to_string(pad) + "/link/my_contact/contacts";
-              subs.push_back(this->gznode->Subscribe(topic, &RepublishPlugin::LandPadContactCallback, this));
-            }
-          }
-        }
       }
 
       void LandPadContactCallback(const boost::shared_ptr<const gazebo::msgs::Contacts>& msg)
