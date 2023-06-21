@@ -1,4 +1,4 @@
-
+import sys
 BASE_COORDINATE = 20.0
 def generate_station_coordinates(x, y):
     return {
@@ -23,3 +23,17 @@ def create_lp_cs_locations():
     charging_stations = {i: generate_station_coordinates(x, y) for i, (x, y) in enumerate(cs_stations, 1)}
     
     return land_pads, charging_stations
+
+def allocate_shortest_station(drone_pos_x, drone_pos_y , array_station):
+    shortest_distance = sys.float_info.max
+    station_to_allocate = array_station[0]
+    for i in range(array_station):
+        if (array_station[i].is_available()):
+            x2, y2 = array_station[i].get_location()
+            if (distance:= calculate_distance(drone_pos_x, drone_pos_y, x2, y2) < shortest_distance):
+                shortest_distance = distance
+                station_to_allocate = array_station[i]
+    return station_to_allocate
+
+def calculate_distance(x1, y1, x2, y2):
+    return ((x2 - x1) ** 2 + (y2 - y1) ** 2) ** 0.5

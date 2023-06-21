@@ -29,6 +29,9 @@ class LandPadListener(Node):
     def get_location(self):
         return self.x, self.y
     
+    def is_available(self):
+        return not self.occupied
+    
     def listener_callback(self, msg):
         if self.ver_drone_50 > 50:
             self.ver_drone_50 = 0

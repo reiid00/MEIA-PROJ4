@@ -18,7 +18,7 @@ from .chargingSpotListener import ChargingSpotListener
 
 from std_msgs.msg import String 
 
-from .utils import create_lp_cs_locations
+from .utils import create_lp_cs_locations, allocate_shortest_station
 
 import time
 import threading
