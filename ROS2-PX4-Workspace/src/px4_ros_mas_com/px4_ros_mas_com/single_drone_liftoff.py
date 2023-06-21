@@ -20,7 +20,6 @@ from std_msgs.msg import String
 
 from .utils import create_lp_cs_locations, allocate_shortest_station
 
-import time
 import threading
 
 
@@ -70,9 +69,9 @@ def main(args=None):
     listen_drones_once(drones_pos_listener)
     drone_controls = []
     offboard_control = DroneControl(2,[-30.0,-30.0,-10.0], drone_pos_listener.current_position,DroneTargetType.CUSTOMER.value)
-    #offboard_control2 = DroneControl(1,[-55.0,1.0,-10.0], drone_pos_listener2.current_position,DroneTargetType.CUSTOMER.value)
+    offboard_control2 = DroneControl(1,[-55.0,1.0,-10.0], drone_pos_listener2.current_position,DroneTargetType.CUSTOMER.value)
     drone_controls.append(offboard_control)
-    #drone_controls.append(offboard_control2)
+    drone_controls.append(offboard_control2)
 
     lp_listeners = []
 
