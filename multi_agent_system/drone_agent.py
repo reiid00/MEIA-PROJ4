@@ -110,6 +110,7 @@ class DroneAgent(BaseAgent):
                 "type": DroneTargetType.CHARGING_STATION.value,
                 "location": charging_instructions["charging_station_location"],
                 "route_height": charging_instructions["route_height"],
+                "charging_station_id": charging_instructions["charging_station_id"],
                 "spot_id": charging_instructions["spot_id"]
             }
 

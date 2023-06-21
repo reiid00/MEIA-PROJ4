@@ -125,6 +125,16 @@ For more details, visit the [Micro XRCE-DDS setup guide](https://docs.px4.io/mai
 
 ## How to Run
 
+### For the first time, install the necessary libraries
+
+  ```bash
+  cd ROS2-PX4-Workspace
+  ./fetch_repos.sh
+  ```
+  
+
+## Start Drone Simulation (With 4 Drones)
+
 1. Start MicrXRCEAgent in a new terminal tab:
 
     ```bash
@@ -135,6 +145,7 @@ For more details, visit the [Micro XRCE-DDS setup guide](https://docs.px4.io/mai
 
     ```bash
     cd PX4-Autopilot
+    source /opt/ros/foxy/setup.bash
     DONT_RUN=1 make px4_sitl gazebo
     Tools/simulation/gazebo-classic/sitl_multiple_run.sh -m iris -n 4
     ```
@@ -144,7 +155,7 @@ For more details, visit the [Micro XRCE-DDS setup guide](https://docs.px4.io/mai
     ```bash
     cd MEIA-PROJ4
     cd ROS2-PX4-Workspace
-    colcon build
     source /opt/ros/foxy/setup.bash
+    colcon build
     source install/local_setup.bash
     ```
