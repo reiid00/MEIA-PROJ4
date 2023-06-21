@@ -11,33 +11,7 @@ class ROS2NodeAgent(BaseAgent):
     def __init__(self, jid: str, password: str):
         super().__init__(jid, password)
 
-    class DroneInfoReportingBehaviour(PeriodicBehaviour):
-        async def run(self):
-            # TBI call send location and battery for each drone when needed 
-            return
-
-        async def send_location(self, drone_id, new_location):
-            # Send current location report to Drone Agent
-            location_msg = Message(to=f'{AGENT_NAMES["DRONE"]}{drone_id}@localhost')
-            location_msg.set_metadata("performative", "inform_location")
-            location_msg.body = json.dumps({"location": new_location})
-            await self.send(location_msg)
-
-        async def send_battery(self, drone_id, new_battery_percentage):
-            # Send current battery report to Drone Agent
-            battery_msg = Message(to=f'{AGENT_NAMES["DRONE"]}{drone_id}@localhost')
-            battery_msg.set_metadata("performative", "inform_battery")
-            battery_msg.body = json.dumps({"battery_percentage": new_battery_percentage})
-            await self.send(battery_msg)
-
-        async def send_target_reached_confirmation(self, drone_id, target):
-            # Send target reached confirmation report to Drone Agent
-            target_reached_confirmation_msg = Message(to=f'{AGENT_NAMES["DRONE"]}{drone_id}@localhost')
-            target_reached_confirmation_msg.set_metadata("performative", "confirm_target_reached")
-            target_reached_confirmation_msg.body = json.dumps(True)
-            await self.send(target_reached_confirmation_msg)
-
-    class DroneInfoHandlingBehaviour(CyclicBehaviour):
+    class DroneHandlingBehaviour(CyclicBehaviour):
         async def run(self):
             msg = await self.receive(timeout=10)
             if msg:
@@ -64,5 +38,4 @@ class ROS2NodeAgent(BaseAgent):
     async def setup(self):
         await super().setup()
         start_at = datetime.datetime.now() + datetime.timedelta(seconds=5)
-        self.add_behaviour(self.DroneInfoReportingBehaviour(period=5, start_at=start_at))
-        self.add_behaviour(self.TargetHandlingBehaviour())
+        self.add_behaviour(self.DroneHandlingBehaviour())

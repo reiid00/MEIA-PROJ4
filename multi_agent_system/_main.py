@@ -12,17 +12,17 @@ async def main():
     app_agent = AppAgent(f'{AGENT_NAMES["APP"]}@localhost', "admin")
     traffic_control_station_agent = TrafficControlStationAgent(f'{AGENT_NAMES["TRAFFIC_CONTROL_STATION"]}@localhost', "admin")
     charging_control_station_agent = ChargingControlStationAgent(f'{AGENT_NAMES["CHARGING_CONTROL_STATION"]}@localhost', "admin")
-    drone_agents = [
-        DroneAgent(f'{AGENT_NAMES["DRONE"]}{i}@localhost', "admin", i) for i in range(1, NUM_DRONES + 1)
-    ]
+    # drone_agents = [
+    #     DroneAgent(f'{AGENT_NAMES["DRONE"]}{i}@localhost', "admin", i) for i in range(1, NUM_DRONES + 1)
+    # ]
     dispatcher_agent = DispatcherAgent(f'{AGENT_NAMES["DISPATCHER"]}@localhost', "admin")
 
    # Start the agents and wait for them to be prepared
     await app_agent.start(auto_register=True)
     await traffic_control_station_agent.start(auto_register=True)
     await charging_control_station_agent.start(auto_register=True)
-    for drone_agent in drone_agents:
-        await drone_agent.start(auto_register=True)
+    # for drone_agent in drone_agents:
+    #     await drone_agent.start(auto_register=True)
     await dispatcher_agent.start(auto_register=True)
 
     await spade.wait_until_finished(traffic_control_station_agent)
@@ -31,8 +31,8 @@ async def main():
     await app_agent.stop()
     await traffic_control_station_agent.stop()
     await charging_control_station_agent.stop()
-    for drone_agent in drone_agents:
-        await drone_agent.stop()
+    # for drone_agent in drone_agents:
+    #     await drone_agent.stop()
     await dispatcher_agent.stop()
 
 if __name__ == "__main__":

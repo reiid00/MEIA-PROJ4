@@ -1,3 +1,4 @@
+import asyncio
 import datetime
 import json
 
@@ -157,6 +158,61 @@ class DroneAgent(BaseAgent):
             confirmation_msg.body = json.dumps({"drone_id": self.agent.drone_id})
             await self.send(confirmation_msg)
 
+    class TargetReachedHandlingBehaviour(CyclicBehaviour):
+        async def run(self):
+            # Wait for an event or trigger
+            # You can use any suitable mechanism to wait for the event
+            await self.wait_for_event()
+
+            # Once the event is triggered, send a communication
+            await self.handle_target_reached_confirmation()
+
+        async def wait_for_event(self):
+            # Implement the logic to wait for the event
+            # This could be based on a condition, a callback, a message received, etc.
+            # You can use asyncio primitives like events or queues, or any other mechanism
+
+            # Example using asyncio event:
+            event = asyncio.Event()
+            # Wait for the event to be set or triggered
+            await event.wait()
+
+        async def handle_target_reached_confirmation(self):
+            # Remove the current target from the targets list
+            current_target = self.agent.targets.pop(0)
+            self.agent.agent_say(f'Target reached: {current_target["type"].name}')
+
+            if current_target["type"] == DroneTargetType.DISPATCHER.value:
+                # Send order status update to Traffic Control Station Agent
+                self.send_order_status_update(current_target["order_id"], OrderStatus.ARRIVED_AT_DISPATCHER.value)
+            elif current_target["type"] == DroneTargetType.CUSTOMER.value:
+                # Send order status update to Traffic Control Station Agent
+                self.send_order_status_update(current_target["order_id"], OrderStatus.ARRIVED_AT_CUSTOMER.value)
+            elif current_target["type"] == DroneTargetType.CHARGING_STATION.value:
+                # Update the drone status
+                self.agent.status = DroneStatus.CHARGING.value
+
+            # Send next target, if exists, to ROS2 node agent
+            if self.agent.targets:
+                await self.send_target(self.agent.targets[0])
+
+        async def send_target(self, target):
+            if target["type"] == DroneTargetType.DISPATCHER.value:
+                # Send order status update to Traffic Control Station Agent
+                self.send_order_status_update(target["order_id"], OrderStatus.ON_THE_WAY_TO_DISPATCHER.value)
+            elif target["type"] == DroneTargetType.CUSTOMER.value:
+                # Send order status update to Traffic Control Station Agent
+                self.send_order_status_update(target["order_id"], OrderStatus.ON_THE_WAY_TO_CUSTOMER.value)
+            elif target["type"] == DroneTargetType.CHARGING_STATION.value:
+                # Update the drone status
+                self.agent.status = DroneStatus.ON_THE_WAY_TO_CHARGING_STATION.value
+
+            target_msg = Message(to=f'{AGENT_NAMES["ROS2_NODE"]}@localhost')
+            target_msg.set_metadata("performative", "inform_target")
+            target_msg.body = json.dumps({"drone_id": self.agent.drone_id, "target": target})
+            await self.send(target_msg)
+            self.agent.agent_say(f'Sent target: {target["type"].name}')
+
     class RouteHandlingBehaviour(CyclicBehaviour):
         async def run(self):
             msg = await self.receive(timeout=10)
@@ -167,11 +223,6 @@ class DroneAgent(BaseAgent):
                     route_instructions = json.loads(msg.body)
                     # Handle route logic using the received instructions
                     await self.handle_route_instructions(route_instructions)
-                elif performative == "confirm_target_reached":
-                    # Receive target reached confirmation from ROS2 node Agent
-                    confirmation = json.loads(msg.body)
-                    # Handle target reached logic using the received confirmation
-                    await self.handle_target_reached_confirmation(confirmation)
 
         async def handle_route_instructions(self, route_instructions):
             dispatcher_target = {
@@ -199,26 +250,6 @@ class DroneAgent(BaseAgent):
                 self.agent.status = DroneStatus.OCCUPIED.value
                 # Send dispatcher target
                 await self.send_target(dispatcher_target)
-
-        async def handle_target_reached_confirmation(self, confirmation):
-            if confirmation:
-                # Remove the current target from the targets list
-                current_target = self.agent.targets.pop(0)
-                self.agent.agent_say(f'Target reached: {current_target["type"].name}')
-
-                if current_target["type"] == DroneTargetType.DISPATCHER.value:
-                    # Send order status update to Traffic Control Station Agent
-                    self.send_order_status_update(current_target["order_id"], OrderStatus.ARRIVED_AT_DISPATCHER.value)
-                elif current_target["type"] == DroneTargetType.CUSTOMER.value:
-                    # Send order status update to Traffic Control Station Agent
-                    self.send_order_status_update(current_target["order_id"], OrderStatus.ARRIVED_AT_CUSTOMER.value)
-                elif current_target["type"] == DroneTargetType.CHARGING_STATION.value:
-                    # Update the drone status
-                    self.agent.status = DroneStatus.CHARGING.value
-
-                # Send next target, if exists, to ROS2 node agent
-                if self.agent.targets:
-                    await self.send_target(self.agent.targets[0])
 
         async def send_order_status_update(self, order_id, status):
             status_msg = Message(to=f'{AGENT_NAMES["TRAFFIC_CONTROL_STATION"]}@localhost')
@@ -249,6 +280,7 @@ class DroneAgent(BaseAgent):
         start_at = datetime.datetime.now() + datetime.timedelta(seconds=5)
         self.add_behaviour(self.LocationReportingBehaviour(period=5, start_at=start_at))
         self.add_behaviour(self.BatteryHandlingBehaviour(period=5, start_at=start_at))
+        self.add_behaviour(self.TargetReachedHandlingBehaviour())
         self.add_behaviour(self.DroneInfoHandlingBehaviour())
         self.add_behaviour(self.ChargingHandlingBehaviour())
         self.add_behaviour(self.RouteHandlingBehaviour())
