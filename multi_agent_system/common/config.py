@@ -13,7 +13,7 @@ AGENT_NAMES = {
     "CHARGING_CONTROL_STATION": "charging_control_station_agent",
     "DRONE": "drone_agent",
     "DISPATCHER": "dispatcher_agent",
-    "ROS2_NODE_AGENT": "ros2_node_agent"
+    "ROS2_NODE": "ros2_node_agent"
 }
 
 # Define external configurations
