@@ -31,7 +31,7 @@ class DroneControl(Node):
 
         self.current_position = current_position
         self.goal_position = goal_position
-        self.goal_position[0] = self.goal_position[0] - 3 * self.drone_num
+        self.goal_position[1] = self.goal_position[1] - 3 * self.drone_num
         self.x = current_position[0]
         self.y = current_position[1]
         self.z = self.goal_position[2]
@@ -44,9 +44,6 @@ class DroneControl(Node):
 
         self.response_timer_ = None
         self.needs_allocation = False
-
-        # timer
-
 
         timer_period = 0.1  # 100 milliseconds
         self.timer_ = self.create_timer(timer_period, self.timer_callback)
@@ -63,12 +60,12 @@ class DroneControl(Node):
         # Initially go to the wanted Height, set goal_postion to destination
         if not self.reached_height and self.validate_height(self.goal_position[2], self.current_position[2]):
             self.reached_height = True
-            self.x = self.goal_position[0]
-            self.y = self.goal_position[1]
+            self.y = self.goal_position[0]
+            self.x = self.goal_position[1]
             self.get_logger().info(f'Drone {self.drone_num} reached preferable height of: {abs(self.goal_position[2])}, going to destiny!')
         
         # Travel to the destination, set Height to zero
-        if self.reached_height and not self.reached_goal and self.validate_goal_pos(self.goal_position[0], self.goal_position[1], self.current_position[0], self.current_position[1]):
+        elif self.reached_height and not self.reached_goal and self.validate_goal_pos(self.goal_position[1], self.goal_position[0], self.current_position[0], self.current_position[1]):
             self.reached_goal = True
             self.z = self.final_height
             self.get_logger().info(f'Drone {self.drone_num} reached preferable destination, going to the ground!')
@@ -86,7 +83,6 @@ class DroneControl(Node):
                 self.send_request("deliver")
                 self.start_response_timer()
                 self.get_logger().info(f'Drone {self.drone_num} reached customer height, waiting for package delivery!')
-                self.get_logger().info(f'Drone Height {self.current_position[2]} ')
                 #Start Timer
             elif not self.disarmmed and self.target_type != DroneTargetType.CUSTOMER.value and self.target_type != DroneTargetType.DISPATCHER.value:
                 self.get_logger().info(f'Drone {self.drone_num} reached the ground, disarmming!')
@@ -103,6 +99,7 @@ class DroneControl(Node):
 
     def send_request(self, string):
         pass
+
     def start_response_timer(self):
         self.response_timer_ = self.create_timer(10, self.response_timer_callback)
 
@@ -116,27 +113,32 @@ class DroneControl(Node):
         self.stop_response_timer()
 
     def update_location(self, targetType, x, y, z):
+
         if self.response_timer_ is not None:
             self.stop_response_timer()
+
         # In case drone is disarmmed
         if self.disarmmed:
             self.publish_vehicle_command(VehicleCommand.VEHICLE_CMD_DO_SET_MODE, 1., 6.)
             self.arm()
+            
+        self.goal_position = [x , y - 3 * self.drone_num, z]
+        self.z = z
+        self.target_type = targetType
+
         self.reached_height = False
         self.reached_goal = False
         self.served_purpose = False
         self.needs_allocation = False
 
-        self.goal_position = [x - 3 * self.drone_num, y , z]
-        self.z = z
-        self.target_type = targetType
+        
     
 
     def calculate_angle(self):
         pass
 
     def return_current_pos(self):
-        return [self.current_position[0] + 3 * self.drone_num, self.current_position[1], self.current_position[2]]
+        return [self.current_position[1],self.current_position[0] + 3 * self.drone_num, self.current_position[2]]
 
     def update_current_position(self, current_position):
         self.current_position = current_position
@@ -145,7 +147,7 @@ class DroneControl(Node):
         return abs((abs(z) - abs(current_z))) < 2e-1
     
     def validate_goal_pos(self, x, y, current_x, current_y):
-        return (abs(x) - abs(current_x)) < 1e-2 and (abs(y) - abs(current_y)) < 1e-2
+        return abs(x) - abs(current_x) < 1e-2 and (abs(y) - abs(current_y)) < 1e-2
 
 
     # Arm the vehicle
@@ -182,7 +184,7 @@ class DroneControl(Node):
     def publish_trajectory_setpoint(self, x = 0.0, y = 0.0, z = 0.0):
         msg = TrajectorySetpoint()
         msg.position = [x,y,z] 
-        msg.yaw = -3.14  # [-PI:PI]
+        msg.yaw = 0.0  # [-PI:PI]
         msg.timestamp = int(Clock().now().nanoseconds / 1000) # time in microseconds
         self.trajectory_setpoint_publisher_.publish(msg)
 
