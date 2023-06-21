@@ -43,7 +43,7 @@ def run_drones(drones, drones_listeners, land_pad_listeners, charging_station_li
 def allocate_drone(drone, station_array):
     drone_pos = drone.return_current_pos()
     station_to_allocate = allocate_shortest_station(drone_pos[0],drone_pos[1], station_array)
-    print(f"Drone {drone.drone_num} allocated to {station_to_allocate.get_station()} ")
+    print(f"[INFO] [2734655362.1823940596] [ControlAgent] Drone {drone.drone_num} allocated to {station_to_allocate.get_station()} ")
     drone.update_location(station_to_allocate.get_type, station_to_allocate.x, station_to_allocate.y, -20.0)
     station_to_allocate.assign_drone()
 
@@ -69,10 +69,10 @@ def main(args=None):
 
     listen_drones_once(drones_pos_listener)
     drone_controls = []
-    offboard_control = DroneControl(2,[30.0,30.0,-10.0], drone_pos_listener.current_position,DroneTargetType.CUSTOMER.value)
-    offboard_control2 = DroneControl(1,[-55.0,1.0,-10.0], drone_pos_listener2.current_position,DroneTargetType.CUSTOMER.value)
+    offboard_control = DroneControl(2,[-30.0,-30.0,-10.0], drone_pos_listener.current_position,DroneTargetType.CUSTOMER.value)
+    #offboard_control2 = DroneControl(1,[-55.0,1.0,-10.0], drone_pos_listener2.current_position,DroneTargetType.CUSTOMER.value)
     drone_controls.append(offboard_control)
-    drone_controls.append(offboard_control2)
+    #drone_controls.append(offboard_control2)
 
     lp_listeners = []
 

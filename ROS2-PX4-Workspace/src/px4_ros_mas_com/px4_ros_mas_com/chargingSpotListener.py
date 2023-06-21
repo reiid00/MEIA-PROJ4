@@ -17,7 +17,6 @@ class ChargingSpotListener(Node):
         self.x, self.y = x, y
         self.charging_spot_contact_listener_ = self.create_subscription(String, f"/charging_station_{charging_station_num}/charging_spot_{charging_spot_num}/contacts", self.listener_callback, 10)
         self.drone_assigned = False
-        self.get_logger().info(f'{self.get_station()} Position X: {self.x}, Y: {self.y}')
 
     def get_type(self):
         return "CHARGING_STATION"
@@ -37,20 +36,19 @@ class ChargingSpotListener(Node):
         self.drone_assigned = True
     
     def listener_callback(self, msg):
-        if not self.drone_assigned:
-            if self.ver_drone_50 > 50:
-                self.ver_drone_50 = 0
-                if self.occupied:
-                    self.get_logger().info(f'Charging Spot {self.charging_spot_num} on Station {self.charging_station_num} AVAILABLE')
-                    self.occupied = False
+        if self.ver_drone_50 > 50:
+            self.ver_drone_50 = 0
+            if not self.is_available():
+                self.get_logger().info(f'Charging Spot {self.charging_spot_num} on Station {self.charging_station_num} AVAILABLE')
+                self.occupied = False
+                self.drone_assigned = False
+        if not self.occupied:
             self.drone_num_occupying = self.validate_string(msg.data)
             if self.drone_num_occupying > 0:
-                if not self.occupied:
                     self.get_logger().info(f'Drone {self.drone_num_occupying} Attached to Charging Spot {self.charging_spot_num} on Station {self.charging_station_num}')
                     self.occupied = True
-                    self.drone_assigned = False
                     self.ver_drone_50 = 0
-            else:
+            elif not self.drone_assigned:
                 self.ver_drone_50+=1
         
     def validate_string(self, input_string):

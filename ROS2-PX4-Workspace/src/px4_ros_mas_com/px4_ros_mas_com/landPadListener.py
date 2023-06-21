@@ -17,7 +17,6 @@ class LandPadListener(Node):
         self.drone_name = "iris"
         self.land_pad_contact_listener_ = self.create_subscription(String, f"/landpad_station_{landpad_station_num}/land_pad_{landpad_num}/contacts", self.listener_callback, 10)
         self.drone_assigned = False
-        self.get_logger().info(f'{self.get_station()} Position X: {self.x}, Y: {self.y}')
     
     def get_type(self):
         return "LAND_PAD"
@@ -35,22 +34,22 @@ class LandPadListener(Node):
     
     def assign_drone(self):
         self.drone_assigned = True
+        self.ver_drone_50 = 0
     
     def listener_callback(self, msg):
-        if not self.drone_assigned:
-            if self.ver_drone_50 > 50:
-                self.ver_drone_50 = 0
-                if self.occupied:
-                    self.get_logger().info(f'Land Pad {self.landpad} on Station {self.landpad_station_num} AVAILABLE')
-                    self.occupied = False
+        if self.ver_drone_50 > 50:
+            self.ver_drone_50 = 0
+            if not self.is_available():
+                self.get_logger().info(f'Land Pad {self.landpad} on Station {self.landpad_station_num} AVAILABLE')
+                self.occupied = False
+                self.drone_assigned = False
+        if not self.occupied:
             self.drone_num_occupying = self.validate_string(msg.data)
             if self.drone_num_occupying > 0:
-                if not self.occupied:
                     self.get_logger().info(f'Drone {self.drone_num_occupying} Attached to Land Pad {self.landpad} on Station {self.landpad_station_num}')
                     self.occupied = True
-                    self.drone_assigned = False
                     self.ver_drone_50 = 0
-            else:
+            elif not self.drone_assigned:
                 self.ver_drone_50+=1
     
     def validate_string(self, input_string):

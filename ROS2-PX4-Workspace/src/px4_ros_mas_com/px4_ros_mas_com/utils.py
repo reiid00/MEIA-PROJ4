@@ -34,8 +34,6 @@ def allocate_shortest_station(drone_pos_x, drone_pos_y , array_station):
             if (distance < shortest_distance):
                 shortest_distance = distance
                 station_to_allocate = station
-    print(station_to_allocate.get_station())
-    print(station_to_allocate.get_location())
     return station_to_allocate
 
 def calculate_distance(x1, y1, x2, y2):

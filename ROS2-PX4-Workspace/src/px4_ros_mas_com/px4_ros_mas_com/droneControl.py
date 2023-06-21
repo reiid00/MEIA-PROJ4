@@ -59,6 +59,7 @@ class DroneControl(Node):
             self.publish_vehicle_command(VehicleCommand.VEHICLE_CMD_DO_SET_MODE, 1., 6.)
             # Arm the vehicle
             self.arm()
+
         # Initially go to the wanted Height, set goal_postion to destination
         if not self.reached_height and self.validate_height(self.goal_position[2], self.current_position[2]):
             self.reached_height = True
@@ -68,9 +69,6 @@ class DroneControl(Node):
         
         # Travel to the destination, set Height to zero
         if self.reached_height and not self.reached_goal and self.validate_goal_pos(self.goal_position[0], self.goal_position[1], self.current_position[0], self.current_position[1]):
-            print(self.drone_num)
-            print(self.goal_position)
-            print(self.current_position)
             self.reached_goal = True
             self.z = self.final_height
             self.get_logger().info(f'Drone {self.drone_num} reached preferable destination, going to the ground!')
@@ -101,9 +99,8 @@ class DroneControl(Node):
 
         # stop the counter after reaching 11
         if (self.offboard_setpoint_counter_ < 11):
-
-
             self.offboard_setpoint_counter_ += 1
+
     def send_request(self, string):
         pass
     def start_response_timer(self):
