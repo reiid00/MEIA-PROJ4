@@ -17,6 +17,20 @@ class DroneAgent(BaseAgent):
         self.targets = [] # Should follow model { type: DroneTargetType, location: { latitude, longitude }, route_height, order_id (optional), spot_id (optional)}
         self.battery_percentage = 100
 
+    class DroneInfoHandlingBehaviour(CyclicBehaviour):
+        async def run(self):
+            msg = await self.receive(timeout=10)
+            if msg:
+                performative = msg.get_metadata("performative")
+                if performative == "inform_location":
+                    # Receive drone location report from ROS2 node agent
+                    drone_location = json.loads(msg.body)
+                    self.location = drone_location["location"]
+                elif performative == "inform_battery":
+                    # Receive drone battery report from ROS2 node agent
+                    drone_battery = json.loads(msg.body)
+                    self.battery_percentage = drone_battery["battery_percentage"]
+
     class LocationReportingBehaviour(PeriodicBehaviour):
         async def run(self):
             # Send current location report to Traffic Control Station Agent
@@ -34,7 +48,10 @@ class DroneAgent(BaseAgent):
                     # Set drone status as available after completing charging
                     self.agent.status = DroneStatus.AVAILABLE.value
                     # Notify traffic control station agent of charging completion
-                    await self.send_charging_completion_confirmation()
+                    await self.send_charging_completion_confirmation_to_traffic_control_station()
+                    # Notify ROS2 node agent of charging completion
+                    await self.send_charging_completion_confirmation_to_ros2_node()
+                    self.agent.agent_say(f"Charging completion confirmation sent to TrafficControlStationAgent and ROS2NodeAgent")
 
                 # Send current battery report to Charging Control Station Agent
                 battery_msg = Message(to=f'{AGENT_NAMES["CHARGING_CONTROL_STATION"]}@localhost')
@@ -60,12 +77,17 @@ class DroneAgent(BaseAgent):
             await self.send(charging_request_msg)
             self.agent.agent_say(f'Battery level is low. Requesting charging.')
 
-        async def send_charging_completion_confirmation(self):
+        async def send_charging_completion_confirmation_to_traffic_control_station(self):
             confirmation_msg = Message(to=f'{AGENT_NAMES["TRAFFIC_CONTROL_STATION"]}@localhost')
             confirmation_msg.set_metadata("performative", "confirm_charging_completion")
             confirmation_msg.body = json.dumps({"drone_id": self.agent.drone_id})
             await self.send(confirmation_msg)
-            self.agent.agent_say(f'Sent charging completion confirmation')
+
+        async def send_charging_completion_confirmation_to_ros2_node(self):
+            confirmation_msg = Message(to=f'{AGENT_NAMES["ROS2_NODE"]}@localhost')
+            confirmation_msg.set_metadata("performative", "confirm_charging_completion")
+            confirmation_msg.body = json.dumps({"drone_id": self.agent.drone_id})
+            await self.send(confirmation_msg)
 
     class ChargingHandlingBehaviour(CyclicBehaviour):
         async def run(self):
@@ -107,7 +129,7 @@ class DroneAgent(BaseAgent):
                 await self.send_target(charging_station_target)
 
         async def send_target(self, target):
-            target_msg = Message(to=f'{AGENT_NAMES["ROS2_NODE_AGENT"]}@localhost')
+            target_msg = Message(to=f'{AGENT_NAMES["ROS2_NODE"]}@localhost')
             target_msg.set_metadata("performative", "inform_target")
             target_msg.body = json.dumps({"drone_id": self.agent.drone_id, "target": target})
             await self.send(target_msg)
@@ -118,14 +140,22 @@ class DroneAgent(BaseAgent):
                 # Set drone status as available after completing early charging
                 self.agent.status = DroneStatus.AVAILABLE.value
                 # Notify traffic control station agent of charging completion
-                await self.send_charging_completion_confirmation()
+                await self.send_charging_completion_confirmation_to_traffic_control_station()
+                # Notify ROS2 node agent of charging completion
+                await self.send_charging_completion_confirmation_to_ros2_node()
+                self.agent.agent_say(f"Charging completion confirmation sent to TrafficControlStationAgent and ROS2NodeAgent")
 
-        async def send_charging_completion_confirmation(self):
+        async def send_charging_completion_confirmation_to_traffic_control_station(self):
             confirmation_msg = Message(to=f'{AGENT_NAMES["TRAFFIC_CONTROL_STATION"]}@localhost')
             confirmation_msg.set_metadata("performative", "confirm_charging_completion")
             confirmation_msg.body = json.dumps({"drone_id": self.agent.drone_id})
             await self.send(confirmation_msg)
-            self.agent.agent_say(f'Sent charging completion confirmation')
+
+        async def send_charging_completion_confirmation_to_ros2_node(self):
+            confirmation_msg = Message(to=f'{AGENT_NAMES["ROS2_NODE"]}@localhost')
+            confirmation_msg.set_metadata("performative", "confirm_charging_completion")
+            confirmation_msg.body = json.dumps({"drone_id": self.agent.drone_id})
+            await self.send(confirmation_msg)
 
     class RouteHandlingBehaviour(CyclicBehaviour):
         async def run(self):
@@ -138,7 +168,7 @@ class DroneAgent(BaseAgent):
                     # Handle route logic using the received instructions
                     await self.handle_route_instructions(route_instructions)
                 elif performative == "confirm_target_reached":
-                    # Receive target reached confirmation from ROS2 node
+                    # Receive target reached confirmation from ROS2 node Agent
                     confirmation = json.loads(msg.body)
                     # Handle target reached logic using the received confirmation
                     await self.handle_target_reached_confirmation(confirmation)
@@ -208,7 +238,7 @@ class DroneAgent(BaseAgent):
                 # Update the drone status
                 self.agent.status = DroneStatus.ON_THE_WAY_TO_CHARGING_STATION.value
 
-            target_msg = Message(to=f'{AGENT_NAMES["ROS2_NODE_AGENT"]}@localhost')
+            target_msg = Message(to=f'{AGENT_NAMES["ROS2_NODE"]}@localhost')
             target_msg.set_metadata("performative", "inform_target")
             target_msg.body = json.dumps({"drone_id": self.agent.drone_id, "target": target})
             await self.send(target_msg)
@@ -219,5 +249,6 @@ class DroneAgent(BaseAgent):
         start_at = datetime.datetime.now() + datetime.timedelta(seconds=5)
         self.add_behaviour(self.LocationReportingBehaviour(period=5, start_at=start_at))
         self.add_behaviour(self.BatteryHandlingBehaviour(period=5, start_at=start_at))
+        self.add_behaviour(self.DroneInfoHandlingBehaviour())
         self.add_behaviour(self.ChargingHandlingBehaviour())
         self.add_behaviour(self.RouteHandlingBehaviour())
