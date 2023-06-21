@@ -48,7 +48,7 @@ def update_order_status():
         if updated_order:
             return {'message': 'Order status updated successfully', 'updated_order': updated_order}, 200
         else:
-            return {'error': f'Order with order_id {order_id} not found'}, 404
+            return {'error': f'Order {order_id} not found'}, 404
 
 @app.route('/next_pending_order', methods=['GET'])
 def get_next_pending_order():
