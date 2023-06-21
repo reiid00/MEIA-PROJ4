@@ -6,7 +6,7 @@ import re
 
 class LandPadListener(Node):
 
-    def __init__(self, landpad_station_num=1, landpad_num=1):
+    def __init__(self, landpad_station_num=1, landpad_num=1, x=0.0, y=0.0):
         super().__init__('land_pad_listener')
 
         self.drone_num_occupying=0
@@ -16,13 +16,19 @@ class LandPadListener(Node):
 
         self.occupied = False
 
+        self.x, self.y = x, y
+
         self.ver_drone_50=0
 
         self.drone_name = "iris"
 
         self.land_pad_contact_listener_ = self.create_subscription(String, f"/landpad_station_{landpad_station_num}/land_pad_{landpad_num}/contacts", self.listener_callback, 10)
 
+        self.get_logger().info(f'Land Pad {self.landpad_num} on Station {self.landpad_station_num} set location, x: {self.x}, y: {self.y}')
 
+    def get_location(self):
+        return self.x, self.y
+    
     def listener_callback(self, msg):
         if self.ver_drone_50 > 50:
             self.ver_drone_50 = 0

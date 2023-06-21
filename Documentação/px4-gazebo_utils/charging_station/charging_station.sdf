@@ -4,17 +4,17 @@
     <include>
       <name>charging_spot_1</name>
       <uri>model://charging_spot</uri>
-      <pose>1 -1 0.1 0 0 0</pose>
+      <pose>1 1 0.1 0 0 0</pose>
     </include>
     <include>
       <name>charging_spot_2</name>
       <uri>model://charging_spot</uri>
-      <pose>-1 1 0.1 0 0 0</pose>
+      <pose>1 -1 0.1 0 0 0</pose>
     </include>
     <include>
       <name>charging_spot_3</name>
       <uri>model://charging_spot</uri>
-      <pose>1 1 0.1 0 0 0</pose>
+      <pose>-1 1 0.1 0 0 0</pose>
     </include>
     <include>
       <name>charging_spot_4</name>

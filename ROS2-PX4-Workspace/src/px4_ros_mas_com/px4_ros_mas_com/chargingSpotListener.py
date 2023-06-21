@@ -7,15 +7,16 @@ import re
 
 class ChargingSpotListener(Node):
 
-    def __init__(self, charging_station_num=1, charging_spot_num=1):
+    def __init__(self, charging_station_num=1, charging_spot_num=1, x=0.0, y=0.0):
         super().__init__('charging_spot_listener')
         self.drone_num_occupying=0
         self.charging_station_num = charging_station_num
         self.charging_spot_num = charging_spot_num
         self.occupied = False
         self.ver_drone_50=0
+        self.x, self.y = x, y
         self.charging_spot_contact_listener_ = self.create_subscription(String, f"/charging_station_{charging_station_num}/charging_spot_{charging_spot_num}/contacts", self.listener_callback, 10)
-
+        self.get_logger().info(f'Charging Spot {self.charging_spot_num} on Station {self.charging_station_num} set location, x: {self.x}, y: {self.y}')
 
     def listener_callback(self, msg):
         if self.ver_drone_50 > 50:
@@ -31,6 +32,9 @@ class ChargingSpotListener(Node):
                 self.ver_drone_50 = 0
         else:
             self.ver_drone_50+=1
+    
+    def get_location(self):
+        return self.x, self.y
     
     def validate_string(self, input_string):
         match = re.search(r'iris_(\d+)', input_string)

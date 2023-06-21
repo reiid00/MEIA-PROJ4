@@ -18,6 +18,8 @@ from .chargingSpotListener import ChargingSpotListener
 
 from std_msgs.msg import String 
 
+from .utils import create_lp_cs_locations
+
 import time
 import threading
 
@@ -66,10 +68,13 @@ def main(args=None):
 
     land_pad_listeners = []
     charging_station_listeners = []
+    land_pads, charging_stations = create_lp_cs_locations()
     for i in range(1,5):
         for j in range(1,5):
-            land_pad_listeners.append(LandPadListener(i,j))
-            charging_station_listeners.append(ChargingSpotListener(i,j))
+            x_lp, y_lp = land_pads[i][j]
+            x_cs, y_cs = charging_stations[i][j]
+            land_pad_listeners.append(LandPadListener(i, j, x_lp, y_lp))
+            charging_station_listeners.append(ChargingSpotListener(i, j, x_cs, y_cs))
     drones_running = threading.Thread(target= run_drones, args=(drone_controls,drones_pos_listener,land_pad_listeners,charging_station_listeners,))
     drones_running.start()  
 
