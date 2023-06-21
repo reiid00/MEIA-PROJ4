@@ -27,12 +27,15 @@ def create_lp_cs_locations():
 def allocate_shortest_station(drone_pos_x, drone_pos_y , array_station):
     shortest_distance = sys.float_info.max
     station_to_allocate = array_station[0]
-    for i in range(array_station):
-        if (array_station[i].is_available()):
-            x2, y2 = array_station[i].get_location()
-            if (distance:= calculate_distance(drone_pos_x, drone_pos_y, x2, y2) < shortest_distance):
+    for station in array_station:
+        if (station.is_available()):
+            station_x, station_y = station.get_location()
+            distance = calculate_distance(drone_pos_x, drone_pos_y, station_x, station_y)
+            if (distance < shortest_distance):
                 shortest_distance = distance
-                station_to_allocate = array_station[i]
+                station_to_allocate = station
+    print(station_to_allocate.get_station())
+    print(station_to_allocate.get_location())
     return station_to_allocate
 
 def calculate_distance(x1, y1, x2, y2):

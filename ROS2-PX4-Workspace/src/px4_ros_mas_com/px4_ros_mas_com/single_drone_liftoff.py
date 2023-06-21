@@ -11,7 +11,7 @@ from px4_msgs.msg import VehicleControlMode
 from px4_msgs.msg import VehicleLocalPosition
 from px4_msgs.msg import VehicleAttitude
 
-from .droneControl import DroneControl
+from .droneControl import DroneControl, DroneTargetType
 from .droneListener import DroneListener
 from .landPadListener import LandPadListener
 from .chargingSpotListener import ChargingSpotListener
@@ -24,6 +24,7 @@ import time
 import threading
 
 
+
 def run_drones(drones, drones_listeners, land_pad_listeners, charging_station_listeners):
     while rclpy.ok():
         for drone in drones:
@@ -31,6 +32,7 @@ def run_drones(drones, drones_listeners, land_pad_listeners, charging_station_li
             drone.update_current_position(drone_listener.current_position)
             rclpy.spin_once(drone)
             if drone.disarmmed : drones.remove(drone)
+            if drone.needs_allocation: allocate_drone(drone, land_pad_listeners) 
         for drone in drones_listeners:
             rclpy.spin_once(drone)
         for land_pad in land_pad_listeners:
@@ -38,6 +40,12 @@ def run_drones(drones, drones_listeners, land_pad_listeners, charging_station_li
         for charging_station in charging_station_listeners:
             rclpy.spin_once(charging_station)
 
+def allocate_drone(drone, station_array):
+    drone_pos = drone.return_current_pos()
+    station_to_allocate = allocate_shortest_station(drone_pos[0],drone_pos[1], station_array)
+    print(f"Drone {drone.drone_num} allocated to {station_to_allocate.get_station()} ")
+    drone.update_location(station_to_allocate.get_type, station_to_allocate.x, station_to_allocate.y, -20.0)
+    station_to_allocate.assign_drone()
 
 def get_available_drones(drones_listeners, drones_running):
     available_drones = []
@@ -61,31 +69,24 @@ def main(args=None):
 
     listen_drones_once(drones_pos_listener)
     drone_controls = []
-    offboard_control = DroneControl(2,[19.0,19.0,-10.0], drone_pos_listener2.current_position)
-    offboard_control2 = DroneControl(1,[19.0,1.0,-10.0], drone_pos_listener.current_position)
+    offboard_control = DroneControl(2,[30.0,30.0,-10.0], drone_pos_listener.current_position,DroneTargetType.CUSTOMER.value)
+    offboard_control2 = DroneControl(1,[-55.0,1.0,-10.0], drone_pos_listener2.current_position,DroneTargetType.CUSTOMER.value)
     drone_controls.append(offboard_control)
     drone_controls.append(offboard_control2)
 
-    land_pad_listeners = []
-    charging_station_listeners = []
+    lp_listeners = []
+
+    cs_listeners = []
+    
     land_pads, charging_stations = create_lp_cs_locations()
     for i in range(1,5):
         for j in range(1,5):
             x_lp, y_lp = land_pads[i][j]
             x_cs, y_cs = charging_stations[i][j]
-            land_pad_listeners.append(LandPadListener(i, j, x_lp, y_lp))
-            charging_station_listeners.append(ChargingSpotListener(i, j, x_cs, y_cs))
-    drones_running = threading.Thread(target= run_drones, args=(drone_controls,drones_pos_listener,land_pad_listeners,charging_station_listeners,))
+            lp_listeners.append(LandPadListener(i, j, x_lp, y_lp))
+            cs_listeners.append(ChargingSpotListener(i, j, x_cs, y_cs))
+    drones_running = threading.Thread(target= run_drones, args=(drone_controls,drones_pos_listener,lp_listeners,cs_listeners,))
     drones_running.start()  
-
-
-
-    # Destroy the node explicitly
-    # (optional - otherwise it will be done automatically
-    # when the garbage collector destroys the node object)
-    #offboard_control.destroy_node()
-    #offboard_control2.destroy_node()
-    #rclpy.shutdown()
 
 
 if __name__ == '__main__':

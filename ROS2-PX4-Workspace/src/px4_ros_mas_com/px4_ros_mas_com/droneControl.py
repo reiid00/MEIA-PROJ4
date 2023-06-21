@@ -5,6 +5,7 @@ from enum import Enum
 from px4_msgs.msg import OffboardControlMode
 from px4_msgs.msg import TrajectorySetpoint
 from px4_msgs.msg import VehicleCommand
+from rclpy.duration import Duration
 
 class DroneTargetType(Enum):
     DISPATCHER = 1
@@ -34,12 +35,15 @@ class DroneControl(Node):
         self.x = current_position[0]
         self.y = current_position[1]
         self.z = self.goal_position[2]
-        self.final_height = 2.0 # Can Change
+        self.final_height = -2.0 # Can Change
 
         self.reached_height = False
         self.reached_goal = False
         self.served_purpose = False
         self.disarmmed = False
+
+        self.response_timer_ = None
+        self.needs_allocation = False
 
         # timer
 
@@ -64,9 +68,12 @@ class DroneControl(Node):
         
         # Travel to the destination, set Height to zero
         if self.reached_height and not self.reached_goal and self.validate_goal_pos(self.goal_position[0], self.goal_position[1], self.current_position[0], self.current_position[1]):
+            print(self.drone_num)
+            print(self.goal_position)
+            print(self.current_position)
             self.reached_goal = True
             self.z = self.final_height
-            self.get_logger().info(f'Drone {self.drone_num} reached preferable destination, going to the ground and disarmming!')
+            self.get_logger().info(f'Drone {self.drone_num} reached preferable destination, going to the ground!')
 
 
         # Disarm drone when reach floor
@@ -74,11 +81,14 @@ class DroneControl(Node):
             if self.target_type == DroneTargetType.DISPATCHER.value and not self.served_purpose:
                 self.served_purpose = True
                 self.send_request("pickup")
+                self.start_response_timer()
                 self.get_logger().info(f'Drone {self.drone_num} reached dispatcher height, waiting for package pickup!')
             if self.target_type == DroneTargetType.CUSTOMER.value and not self.served_purpose:
                 self.served_purpose = True
                 self.send_request("deliver")
-                self.get_logger().info(f'Drone {self.drone_num} reached customer height, waiting for package deliver!')
+                self.start_response_timer()
+                self.get_logger().info(f'Drone {self.drone_num} reached customer height, waiting for package delivery!')
+                self.get_logger().info(f'Drone Height {self.current_position[2]} ')
                 #Start Timer
             elif not self.disarmmed and self.target_type != DroneTargetType.CUSTOMER.value and self.target_type != DroneTargetType.DISPATCHER.value:
                 self.get_logger().info(f'Drone {self.drone_num} reached the ground, disarmming!')
@@ -91,10 +101,26 @@ class DroneControl(Node):
 
         # stop the counter after reaching 11
         if (self.offboard_setpoint_counter_ < 11):
-            self.offboard_setpoint_counter_ += 1
 
+
+            self.offboard_setpoint_counter_ += 1
+    def send_request(self, string):
+        pass
+    def start_response_timer(self):
+        self.response_timer_ = self.create_timer(10, self.response_timer_callback)
+
+    def stop_response_timer(self):
+        self.response_timer_.cancel()
+        self.response_timer_ = None
+
+    def response_timer_callback(self):
+        self.get_logger().info(f'Drone {self.drone_num} did not receive the expected response in {10} seconds, Requesting Land Pad!')
+        self.needs_allocation = True
+        self.stop_response_timer()
 
     def update_location(self, targetType, x, y, z):
+        if self.response_timer_ is not None:
+            self.stop_response_timer()
         # In case drone is disarmmed
         if self.disarmmed:
             self.publish_vehicle_command(VehicleCommand.VEHICLE_CMD_DO_SET_MODE, 1., 6.)
@@ -102,8 +128,9 @@ class DroneControl(Node):
         self.reached_height = False
         self.reached_goal = False
         self.served_purpose = False
+        self.needs_allocation = False
 
-        self.goal_position = [x, y, z]
+        self.goal_position = [x - 3 * self.drone_num, y , z]
         self.z = z
         self.target_type = targetType
     
@@ -112,7 +139,7 @@ class DroneControl(Node):
         pass
 
     def return_current_pos(self):
-        return [self.current_position[0] + 3 * self.drone_num, self.current_position[1], self.current_position[3]]
+        return [self.current_position[0] + 3 * self.drone_num, self.current_position[1], self.current_position[2]]
 
     def update_current_position(self, current_position):
         self.current_position = current_position
@@ -121,7 +148,7 @@ class DroneControl(Node):
         return abs((abs(z) - abs(current_z))) < 2e-1
     
     def validate_goal_pos(self, x, y, current_x, current_y):
-        return (abs(x) - abs(current_x)) < 1 and (abs(y) - abs(current_y)) < 1e-1
+        return (abs(x) - abs(current_x)) < 1e-2 and (abs(y) - abs(current_y)) < 1e-2
 
 
     # Arm the vehicle
