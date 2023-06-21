@@ -13,6 +13,7 @@ class ChargingSpotListener(Node):
         self.charging_station_num = charging_station_num
         self.charging_spot_num = charging_spot_num
         self.occupied = False
+        self.ver_drone_50=0
         self.charging_spot_contact_listener_ = self.create_subscription(String, f"/charging_station_{charging_station_num}/charging_spot_{charging_spot_num}/contacts", self.listener_callback, 10)
 
 
@@ -33,4 +34,4 @@ class ChargingSpotListener(Node):
     
     def validate_string(self, input_string):
         match = re.search(r'iris_(\d+)', input_string)
-        return int(match.group(1)) if match else return 0
+        return int(match.group(1)) if match else 0

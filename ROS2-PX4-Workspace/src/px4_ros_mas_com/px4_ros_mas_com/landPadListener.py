@@ -40,5 +40,5 @@ class LandPadListener(Node):
     
     def validate_string(self, input_string):
         match = re.search(r'iris_(\d+)', input_string)
-        return int(match.group(1)) if match else return 0
+        return int(match.group(1)) if match else 0
         

@@ -4,22 +4,22 @@
     <include>
       <name>land_pad_1</name>
       <uri>model://land_pad_v2</uri>
-      <pose>0.35 -0.35 0.1 0 0 0</pose>
+      <pose>1 -1 0.1 0 0 0</pose>
     </include>
     <include>
       <name>land_pad_2</name>
       <uri>model://land_pad_v2</uri>
-      <pose>-0.35 0.35 0.1 0 0 0</pose>
+      <pose>-1 1 0.1 0 0 0</pose>
     </include>
     <include>
       <name>land_pad_3</name>
       <uri>model://land_pad_v2</uri>
-      <pose>0.35 0.35 0.1 0 0 0</pose>
+      <pose>1 1 0.1 0 0 0</pose>
     </include>
     <include>
       <name>land_pad_4</name>
       <uri>model://land_pad_v2</uri>
-      <pose>-0.35 -0.35 0.1 0 0 0</pose>
+      <pose>-1 -1 0.1 0 0 0</pose>
     </include>
   </model>
 </sdf>

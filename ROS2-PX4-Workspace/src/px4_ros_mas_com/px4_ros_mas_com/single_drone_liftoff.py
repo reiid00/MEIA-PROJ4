@@ -59,8 +59,8 @@ def main(args=None):
 
     listen_drones_once(drones_pos_listener)
     drone_controls = []
-    offboard_control = DroneControl(2,[19.5,19.5,-10.0], drone_pos_listener2.current_position)
-    offboard_control2 = DroneControl(1,[19.5,0.5,-10.0], drone_pos_listener.current_position)
+    offboard_control = DroneControl(2,[19.0,19.0,-10.0], drone_pos_listener2.current_position)
+    offboard_control2 = DroneControl(1,[19.0,1.0,-10.0], drone_pos_listener.current_position)
     drone_controls.append(offboard_control)
     drone_controls.append(offboard_control2)
 
