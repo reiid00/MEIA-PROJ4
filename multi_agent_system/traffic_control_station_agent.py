@@ -76,11 +76,7 @@ class TrafficControlStationAgent(BaseAgent):
                 self.agent.agent_say(f'There are no drones available. Reattempt will occur in 5 seconds.')     
 
         async def send_assigned_route_instructions(self, drone_id, route_instructions):
-<<<<<<< HEAD
             route_msg = Message(to=f'{AGENT_NAMES["DRONE"]}{drone_id}@{XMPP_SERVER_URL}')
-=======
-            route_msg = Message(to=f'{AGENT_NAMES["DRONE"]}{drone_id}@192.168.1.91')
->>>>>>> 4ccfd5987fc7055259ae78f6c1a2d4b06bf1ab17
             route_msg.set_metadata("performative", "inform_route_instructions")
             route_msg.body = json.dumps(route_instructions)
             await self.send(route_msg)
@@ -133,11 +129,7 @@ class TrafficControlStationAgent(BaseAgent):
                     self.update_order_status(order_id, OrderStatus.COMPLETED.value)
 
         async def report_order_status(self, order_id, status):
-<<<<<<< HEAD
             status_msg = Message(to=f'{AGENT_NAMES["APP"]}@{XMPP_SERVER_URL}')
-=======
-            status_msg = Message(to=f'{AGENT_NAMES["APP"]}@192.168.1.91')
->>>>>>> 4ccfd5987fc7055259ae78f6c1a2d4b06bf1ab17
             status_msg.set_metadata("performative", "inform_status")
             status_msg.body = json.dumps({"order_id": order_id, "status": status})
             await self.send(status_msg)
@@ -192,11 +184,7 @@ class TrafficControlStationAgent(BaseAgent):
                 await self.redirect_charging_request(drone_id, self.agent.drones[drone_id]["location"], self.agent.drones[drone_id]["route_height"])
 
         async def redirect_charging_request(self, drone_id, drone_location, route_height):
-<<<<<<< HEAD
             charging_request_msg = Message(to=f'{AGENT_NAMES["CHARGING_CONTROL_STATION"]}@{XMPP_SERVER_URL}')
-=======
-            charging_request_msg = Message(to=f'{AGENT_NAMES["CHARGING_CONTROL_STATION"]}@192.168.1.91')
->>>>>>> 4ccfd5987fc7055259ae78f6c1a2d4b06bf1ab17
             charging_request_msg.set_metadata("performative", "request_charging")
             charging_request_msg.body = json.dumps({"drone_id": drone_id, "drone_location": drone_location, "route_height": route_height})
             await self.send(charging_request_msg)
