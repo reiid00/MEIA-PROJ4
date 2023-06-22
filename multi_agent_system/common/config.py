@@ -15,6 +15,7 @@ AGENT_NAMES = {
     "DISPATCHER": "dispatcher_agent",
     "ROS2_NODE": "ros2_node_agent"
 }
+XMPP_SERVER_URL = "localhost"
 
 # Define external configurations
 DISPATCHER_API_URL = "https://dispatcher.simulation/orders"

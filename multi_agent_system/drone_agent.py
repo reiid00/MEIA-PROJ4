@@ -3,8 +3,7 @@ import datetime
 import json
 
 from common.base_agent import BaseAgent
-from common.config import (AGENT_NAMES, OPTIMUM_BATTERY_RANGE, DroneStatus,
-                           DroneTargetType, OrderStatus)
+from common.config import (AGENT_NAMES, OPTIMUM_BATTERY_RANGE, XMPP_SERVER_URL, DroneStatus, DroneTargetType, OrderStatus)
 from spade.behaviour import CyclicBehaviour, PeriodicBehaviour
 from spade.message import Message
 
@@ -35,7 +34,11 @@ class DroneAgent(BaseAgent):
     class LocationReportingBehaviour(PeriodicBehaviour):
         async def run(self):
             # Send current location report to Traffic Control Station Agent
+<<<<<<< HEAD
+            location_msg = Message(to=f'{AGENT_NAMES["TRAFFIC_CONTROL_STATION"]}@{XMPP_SERVER_URL}')
+=======
             location_msg = Message(to=f'{AGENT_NAMES["TRAFFIC_CONTROL_STATION"]}@192.168.1.91')
+>>>>>>> 4ccfd5987fc7055259ae78f6c1a2d4b06bf1ab17
             location_msg.set_metadata("performative", "inform_location")
             location_msg.body = json.dumps({"drone_id": self.agent.drone_id, "location": self.agent.location})
             await self.send(location_msg)
@@ -55,7 +58,11 @@ class DroneAgent(BaseAgent):
                     self.agent.agent_say(f"Charging completion confirmation sent to TrafficControlStationAgent and ROS2NodeAgent")
 
                 # Send current battery report to Charging Control Station Agent
+<<<<<<< HEAD
+                battery_msg = Message(to=f'{AGENT_NAMES["CHARGING_CONTROL_STATION"]}@{XMPP_SERVER_URL}')
+=======
                 battery_msg = Message(to=f'{AGENT_NAMES["CHARGING_CONTROL_STATION"]}@192.168.1.91')
+>>>>>>> 4ccfd5987fc7055259ae78f6c1a2d4b06bf1ab17
                 battery_msg.set_metadata("performative", "inform_battery")
                 battery_msg.body = json.dumps({"drone_id": self.agent.drone_id, "battery_percentage": self.agent.battery_percentage})
                 await self.send(battery_msg)
@@ -72,20 +79,32 @@ class DroneAgent(BaseAgent):
                     await self.request_charging()
 
         async def request_charging(self):
+<<<<<<< HEAD
+            charging_request_msg = Message(to=f'{AGENT_NAMES["TRAFFIC_CONTROL_STATION"]}@{XMPP_SERVER_URL}')
+=======
             charging_request_msg = Message(to=f'{AGENT_NAMES["TRAFFIC_CONTROL_STATION"]}@192.168.1.91')
+>>>>>>> 4ccfd5987fc7055259ae78f6c1a2d4b06bf1ab17
             charging_request_msg.set_metadata("performative", "request_charging")
             charging_request_msg.body = json.dumps({"drone_id": self.agent.drone_id})
             await self.send(charging_request_msg)
             self.agent.agent_say(f'Battery level is low. Requesting charging.')
 
         async def send_charging_completion_confirmation_to_traffic_control_station(self):
+<<<<<<< HEAD
+            confirmation_msg = Message(to=f'{AGENT_NAMES["TRAFFIC_CONTROL_STATION"]}@{XMPP_SERVER_URL}')
+=======
             confirmation_msg = Message(to=f'{AGENT_NAMES["TRAFFIC_CONTROL_STATION"]}@192.168.1.91')
+>>>>>>> 4ccfd5987fc7055259ae78f6c1a2d4b06bf1ab17
             confirmation_msg.set_metadata("performative", "confirm_charging_completion")
             confirmation_msg.body = json.dumps({"drone_id": self.agent.drone_id})
             await self.send(confirmation_msg)
 
         async def send_charging_completion_confirmation_to_ros2_node(self):
+<<<<<<< HEAD
+            confirmation_msg = Message(to=f'{AGENT_NAMES["ROS2_NODE"]}@{XMPP_SERVER_URL}')
+=======
             confirmation_msg = Message(to=f'{AGENT_NAMES["ROS2_NODE"]}@192.168.1.91')
+>>>>>>> 4ccfd5987fc7055259ae78f6c1a2d4b06bf1ab17
             confirmation_msg.set_metadata("performative", "confirm_charging_completion")
             confirmation_msg.body = json.dumps({"drone_id": self.agent.drone_id})
             await self.send(confirmation_msg)
@@ -130,7 +149,11 @@ class DroneAgent(BaseAgent):
                 await self.send_target(charging_station_target)
 
         async def send_target(self, target):
+<<<<<<< HEAD
+            target_msg = Message(to=f'{AGENT_NAMES["ROS2_NODE"]}@{XMPP_SERVER_URL}')
+=======
             target_msg = Message(to=f'{AGENT_NAMES["ROS2_NODE"]}@192.168.1.91')
+>>>>>>> 4ccfd5987fc7055259ae78f6c1a2d4b06bf1ab17
             target_msg.set_metadata("performative", "inform_target")
             target_msg.body = json.dumps({"drone_id": self.agent.drone_id, "target": target})
             await self.send(target_msg)
@@ -147,35 +170,74 @@ class DroneAgent(BaseAgent):
                 self.agent.agent_say(f"Charging completion confirmation sent to TrafficControlStationAgent and ROS2NodeAgent")
 
         async def send_charging_completion_confirmation_to_traffic_control_station(self):
+<<<<<<< HEAD
+            confirmation_msg = Message(to=f'{AGENT_NAMES["TRAFFIC_CONTROL_STATION"]}@{XMPP_SERVER_URL}')
+=======
             confirmation_msg = Message(to=f'{AGENT_NAMES["TRAFFIC_CONTROL_STATION"]}@192.168.1.91')
+>>>>>>> 4ccfd5987fc7055259ae78f6c1a2d4b06bf1ab17
             confirmation_msg.set_metadata("performative", "confirm_charging_completion")
             confirmation_msg.body = json.dumps({"drone_id": self.agent.drone_id})
             await self.send(confirmation_msg)
 
         async def send_charging_completion_confirmation_to_ros2_node(self):
+<<<<<<< HEAD
+            confirmation_msg = Message(to=f'{AGENT_NAMES["ROS2_NODE"]}@{XMPP_SERVER_URL}')
+=======
             confirmation_msg = Message(to=f'{AGENT_NAMES["ROS2_NODE"]}@192.168.1.91')
+>>>>>>> 4ccfd5987fc7055259ae78f6c1a2d4b06bf1ab17
             confirmation_msg.set_metadata("performative", "confirm_charging_completion")
             confirmation_msg.body = json.dumps({"drone_id": self.agent.drone_id})
             await self.send(confirmation_msg)
 
-    class TargetReachedHandlingBehaviour(CyclicBehaviour):
+    class RouteHandlingBehaviour(CyclicBehaviour):
         async def run(self):
-            # Wait for an event or trigger
-            # You can use any suitable mechanism to wait for the event
-            await self.wait_for_event()
+            msg = await self.receive(timeout=10)
+            if msg:
+                performative = msg.get_metadata("performative")
+                if performative == "inform_route_instructions":
+                    # Receive route instructions from Traffic Control Station Agent
+                    route_instructions = json.loads(msg.body)
+                    # Handle route logic using the received instructions
+                    await self.handle_route_instructions(route_instructions)
+                elif performative == "confirm_target_reached":
+                    # Receive target reach confirmation from ROS2 Node Agent
+                    confirmation = json.loads(msg.body)
+                    # Handle target reach confirmation logic
+                    await self.handle_target_reached_confirmation(confirmation)
 
-            # Once the event is triggered, send a communication
-            await self.handle_target_reached_confirmation()
+        async def handle_route_instructions(self, route_instructions):
+            dispatcher_target = {
+                "type": DroneTargetType.DISPATCHER.value,
+                "location": route_instructions["dispatcher_location"],
+                "route_height": route_instructions["route_height"],
+            }
+            customer_target = {
+                "type": DroneTargetType.CUSTOMER.value,
+                "location": route_instructions["customer_location"],
+                "route_height": route_instructions["route_height"],
+                "qrcode": route_instructions["qrcode"]
+            }
 
-        async def wait_for_event(self):
-            # Implement the logic to wait for the event
-            # This could be based on a condition, a callback, a message received, etc.
-            # You can use asyncio primitives like events or queues, or any other mechanism
+            # If targets list is empty, then should send dispatcher target immediately
+            send_dispatcher_target = True if not self.agent.targets else False
+            
+            # Add dispatcher and customer locations as target locations
+            self.agent.targets.append(dispatcher_target)
+            self.agent.targets.append(customer_target)
+            self.agent.agent_say(f'Received route instructions. Added dispatcher and customer locations of order {route_instructions["order_id"]} to targets list.')
+            
+            if send_dispatcher_target:
+                # Update the drone status
+                self.agent.status = DroneStatus.OCCUPIED.value
+                # Send dispatcher target
+                await self.send_target(dispatcher_target)
 
-            # Example using asyncio event:
-            event = asyncio.Event()
-            # Wait for the event to be set or triggered
-            await event.wait()
+        async def send_order_status_update(self, order_id, status):
+            status_msg = Message(to=f'{AGENT_NAMES["TRAFFIC_CONTROL_STATION"]}@{XMPP_SERVER_URL}')
+            status_msg.set_metadata("performative", "inform_status")
+            status_msg.body = json.dumps({"drone_id": self.agent.drone_id, "order_id": order_id, "status": status})
+            await self.send(status_msg)
+            self.agent.agent_say(f'Sent order status update: Order {order_id} - Status {status}')
 
         async def handle_target_reached_confirmation(self):
             # Remove the current target from the targets list
@@ -207,6 +269,9 @@ class DroneAgent(BaseAgent):
                 # Update the drone status
                 self.agent.status = DroneStatus.ON_THE_WAY_TO_CHARGING_STATION.value
 
+<<<<<<< HEAD
+            target_msg = Message(to=f'{AGENT_NAMES["ROS2_NODE"]}@{XMPP_SERVER_URL}')
+=======
             target_msg = Message(to=f'{AGENT_NAMES["ROS2_NODE"]}@192.168.1.91')
             target_msg.set_metadata("performative", "inform_target")
             target_msg.body = json.dumps({"drone_id": self.agent.drone_id, "target": target})
@@ -270,6 +335,7 @@ class DroneAgent(BaseAgent):
                 self.agent.status = DroneStatus.ON_THE_WAY_TO_CHARGING_STATION.value
 
             target_msg = Message(to=f'{AGENT_NAMES["ROS2_NODE"]}@192.168.1.91')
+>>>>>>> 4ccfd5987fc7055259ae78f6c1a2d4b06bf1ab17
             target_msg.set_metadata("performative", "inform_target")
             target_msg.body = json.dumps({"drone_id": self.agent.drone_id, "target": target})
             await self.send(target_msg)
@@ -280,7 +346,6 @@ class DroneAgent(BaseAgent):
         start_at = datetime.datetime.now() + datetime.timedelta(seconds=5)
         self.add_behaviour(self.LocationReportingBehaviour(period=5, start_at=start_at))
         self.add_behaviour(self.BatteryHandlingBehaviour(period=5, start_at=start_at))
-        self.add_behaviour(self.TargetReachedHandlingBehaviour())
         self.add_behaviour(self.DroneInfoHandlingBehaviour())
         self.add_behaviour(self.ChargingHandlingBehaviour())
         self.add_behaviour(self.RouteHandlingBehaviour())

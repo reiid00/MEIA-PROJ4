@@ -3,7 +3,7 @@ import json
 
 import requests
 from common.base_agent import BaseAgent
-from common.config import AGENT_NAMES, APP_API_URL
+from common.config import AGENT_NAMES, APP_API_URL, XMPP_SERVER_URL
 from spade.behaviour import CyclicBehaviour, PeriodicBehaviour
 from spade.message import Message
 
@@ -28,13 +28,21 @@ class AppAgent(BaseAgent):
             return None
 
         async def send_order_to_dispatcher(self, order_details):
+<<<<<<< HEAD
+            order_msg = Message(to=f'{AGENT_NAMES["DISPATCHER"]}@{XMPP_SERVER_URL}')
+=======
             order_msg = Message(to=f'{AGENT_NAMES["DISPATCHER"]}@192.168.1.91')
+>>>>>>> 4ccfd5987fc7055259ae78f6c1a2d4b06bf1ab17
             order_msg.set_metadata("performative", "inform_order")
             order_msg.body = json.dumps(order_details)
             await self.send(order_msg)
 
         async def send_order_to_traffic_control_station(self, order_details):
+<<<<<<< HEAD
+            order_msg = Message(to=f'{AGENT_NAMES["TRAFFIC_CONTROL_STATION"]}@{XMPP_SERVER_URL}')
+=======
             order_msg = Message(to=f'{AGENT_NAMES["TRAFFIC_CONTROL_STATION"]}@192.168.1.91')
+>>>>>>> 4ccfd5987fc7055259ae78f6c1a2d4b06bf1ab17
             order_msg.set_metadata("performative", "inform_order")
             order_msg.body = json.dumps(order_details)
             await self.send(order_msg)

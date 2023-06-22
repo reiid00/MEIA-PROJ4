@@ -1,8 +1,7 @@
 import json
 
 from common.base_agent import BaseAgent
-from common.config import (AGENT_NAMES, OPTIMUM_BATTERY_RANGE,
-                           ChargingStationSpotStatus, ChargingStationStatus)
+from common.config import (AGENT_NAMES, OPTIMUM_BATTERY_RANGE, XMPP_SERVER_URL, ChargingStationSpotStatus, ChargingStationStatus)
 from common.utils import calculate_distance
 from spade.behaviour import CyclicBehaviour
 from spade.message import Message
@@ -61,7 +60,11 @@ class ChargingControlStationAgent(BaseAgent):
                 "spot_id": spot["id"],
                 "route_height": route_height
             }
+<<<<<<< HEAD
+            charging_instructions_msg = Message(to=f'{AGENT_NAMES["DRONE"]}{drone_id}@{XMPP_SERVER_URL}')
+=======
             charging_instructions_msg = Message(to=f'{AGENT_NAMES["DRONE"]}{drone_id}@192.168.1.91')
+>>>>>>> 4ccfd5987fc7055259ae78f6c1a2d4b06bf1ab17
             charging_instructions_msg.set_metadata("performative", "inform_charging_instructions")
             charging_instructions_msg.body = json.dumps(charging_instructions)
             await self.send(charging_instructions_msg)
@@ -80,7 +83,11 @@ class ChargingControlStationAgent(BaseAgent):
                 self.agent.agent_say(f'No charging spots available. Unable to fulfill charging request for drone {drone_id}.')
 
         async def notify_early_charging(self, drone_id):
+<<<<<<< HEAD
+            notify_msg = Message(to=f'{AGENT_NAMES["DRONE"]}{drone_id}@{XMPP_SERVER_URL}')
+=======
             notify_msg = Message(to=f'{AGENT_NAMES["DRONE"]}{drone_id}@192.168.1.91')
+>>>>>>> 4ccfd5987fc7055259ae78f6c1a2d4b06bf1ab17
             notify_msg.set_metadata("performative", "notify_early_charging")
             notify_msg.body = json.dumps(True)
             await self.send(notify_msg)
