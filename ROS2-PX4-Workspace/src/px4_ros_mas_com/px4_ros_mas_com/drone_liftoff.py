@@ -1,25 +1,10 @@
 
 import rclpy
-from rclpy.node import Node
-from rclpy.clock import Clock
-from rclpy.qos import QoSProfile, HistoryPolicy, ReliabilityPolicy, DurabilityPolicy
-
-from px4_msgs.msg import OffboardControlMode
-from px4_msgs.msg import TrajectorySetpoint
-from px4_msgs.msg import VehicleCommand
-from px4_msgs.msg import VehicleControlMode
-from px4_msgs.msg import VehicleLocalPosition
-from px4_msgs.msg import VehicleAttitude
-
 from .droneControl import DroneControl, DroneTargetType
 from .droneListener import DroneListener
 from .landPadListener import LandPadListener
 from .chargingSpotListener import ChargingSpotListener
-
-from std_msgs.msg import String 
-
 from .utils import create_lp_cs_locations, allocate_shortest_station
-
 import threading
 
 
@@ -46,6 +31,7 @@ def allocate_drone(drone, station_array):
     drone.update_location(station_to_allocate.get_type, station_to_allocate.x, station_to_allocate.y, -20.0)
     station_to_allocate.assign_drone()
 
+
 def get_available_drones(drones_listeners, drones_running):
     available_drones = []
     for drone_listener in drones_listeners:
@@ -59,6 +45,7 @@ def listen_drones_once(drones_listeners):
         rclpy.spin_once(drone)
 
 def main(args=None):
+    
     rclpy.init(args=args)
     drones_pos_listener = []
     drone_pos_listener = DroneListener(2)

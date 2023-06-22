@@ -6,16 +6,18 @@ from px4_msgs.msg import OffboardControlMode
 from px4_msgs.msg import TrajectorySetpoint
 from px4_msgs.msg import VehicleCommand
 from rclpy.duration import Duration
+import json
 
 class DroneTargetType(Enum):
     DISPATCHER = 1
     CUSTOMER = 2
     CHARGING_STATION = 3
+    LAND_PAD = 4
 
 
 class DroneControl(Node):
 
-    def __init__(self, drone_num=1, goal_position=[0.0,0.0,0.0], current_position=[0.0,0.0,0.0], target_type = "TESTING"):
+    def __init__(self, drone_num=1, goal_position=[0.0,0.0,0.0], current_position=[0.0,0.0,0.0], target_type = "TESTING", drone_agent):
         super().__init__('DroneControl')
         self.drone_num = drone_num
         self.target_system = drone_num+1
@@ -47,6 +49,8 @@ class DroneControl(Node):
 
         timer_period = 0.1  # 100 milliseconds
         self.timer_ = self.create_timer(timer_period, self.timer_callback)
+
+        self.drone_agent = drone_agent
 
         
     def timer_callback(self):
@@ -142,6 +146,7 @@ class DroneControl(Node):
 
     def update_current_position(self, current_position):
         self.current_position = current_position
+        self.drone_agent.location = json.dumps({'latitude': self.current_position[1], 'longitude': self.current_position[0] + 3 * self.drone_num})
 
     def validate_height(self, z, current_z):
         return abs((abs(z) - abs(current_z))) < 2e-1
