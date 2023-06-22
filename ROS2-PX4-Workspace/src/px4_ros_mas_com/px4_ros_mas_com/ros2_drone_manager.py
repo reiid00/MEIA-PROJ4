@@ -17,9 +17,10 @@ from .landPadListener import LandPadListener
 from .chargingSpotListener import ChargingSpotListener
 
 from std_msgs.msg import String 
-from drone_agent import DroneAgent
-from common.config import AGENT_NAMES, NUM_DRONES, HEIGHT_RANGE
+from .drone_agent import DroneAgent
+from .config import AGENT_NAMES, NUM_DRONES, HEIGHT_RANGE
 from .utils import create_lp_cs_locations, allocate_shortest_station
+import spade
 
 import threading
 
@@ -62,17 +63,36 @@ def get_available_drones(drones_listeners, drones_running):
         if drone == None : available_drones.append(drone_listener)
     return available_drones
 
-def init_drone_arrays(station_array):
-    drone_controls = []
-    drone_listeners = []
+def init_spade_agents():
     drone_agents = []
     for i in range(1, NUM_DRONES + 1):
-        drone_agents.append(DroneAgent(f'{AGENT_NAMES["DRONE"]}{i}@localhost', "admin", i))
+        drone_agents.append(DroneAgent(f'{AGENT_NAMES["DRONE"]}{i}@192.168.1.91', "admin", i))
+    return drone_agents
+
+def init_drone_arrays(drone_agents, station_array):
+    drone_controls = []
+    drone_listeners = []
+    for i in range(1, NUM_DRONES + 1):
         drone_listeners.append(DroneListener(i))
         rclpy.spin_once(drone_listeners[i-1])
-        drone_x, drone_y = allocate_drone_initial(drone_listeners[i-1].current_positon[0], drone_listeners[i-1].current_positon[1], i, station_array)
-        drone_controls.append(DroneControl(2,[drone_x,drone_y,-max((HEIGHT_RANGE[0] + ((i - 1) * 5)), HEIGHT_RANGE[1])], drone_listeners[i-1].current_position,DroneTargetType.LAND_PAD.value, drone_agents[i-1]))
+        drone_x, drone_y = allocate_drone_initial(drone_listeners[i-1].current_position[0], drone_listeners[i-1].current_position[1], i, station_array)
+        drone_controls.append(DroneControl(i,[drone_x,drone_y,-max((HEIGHT_RANGE[0] + ((i - 1) * 5)), HEIGHT_RANGE[1])], drone_listeners[i-1].current_position,DroneTargetType.LAND_PAD.value, drone_agents[i-1]))
     return drone_controls, drone_listeners, drone_agents
+
+async def run_agents(drone_agents):
+    for agent in drone_agents:
+      await agent.start(auto_register=True)
+
+    await spade.wait_until_finished(drone_agents[0])
+
+    stop_agents(drone_agents)
+
+async def stop_agents(drone_agents):
+    for agent in drone_agents:
+      await agent.stop()
+
+def run_spade(drone_agents):
+    spade.run(run_agents(drone_agents))
 
 def init_lp_cs_listeners():
     lp_listeners = []
@@ -88,12 +108,14 @@ def init_lp_cs_listeners():
 
 def main(args=None):
     rclpy.init(args=args)
-
+    drone_agents = init_spade_agents()
+    spade_running = threading.Thread(target= run_spade, args=(drone_agents,))
+    spade_running.start()  
     lp_listeners, cs_listeners = init_lp_cs_listeners()
-    drone_controls, drone_listeners, drone_agents = init_drone_arrays(lp_listeners)
+    drone_controls, drone_listeners, drone_agents = init_drone_arrays(drone_agents, lp_listeners)
     drones_running = threading.Thread(target= run_drones, args=(drone_controls,drone_listeners,lp_listeners,cs_listeners,))
     drones_running.start()  
 
 
 if __name__ == '__main__':
-    main()
+    spade.run(main())

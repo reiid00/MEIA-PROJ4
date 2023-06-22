@@ -61,7 +61,7 @@ class ChargingControlStationAgent(BaseAgent):
                 "spot_id": spot["id"],
                 "route_height": route_height
             }
-            charging_instructions_msg = Message(to=f'{AGENT_NAMES["DRONE"]}{drone_id}@localhost')
+            charging_instructions_msg = Message(to=f'{AGENT_NAMES["DRONE"]}{drone_id}@192.168.1.91')
             charging_instructions_msg.set_metadata("performative", "inform_charging_instructions")
             charging_instructions_msg.body = json.dumps(charging_instructions)
             await self.send(charging_instructions_msg)
@@ -80,7 +80,7 @@ class ChargingControlStationAgent(BaseAgent):
                 self.agent.agent_say(f'No charging spots available. Unable to fulfill charging request for drone {drone_id}.')
 
         async def notify_early_charging(self, drone_id):
-            notify_msg = Message(to=f'{AGENT_NAMES["DRONE"]}{drone_id}@localhost')
+            notify_msg = Message(to=f'{AGENT_NAMES["DRONE"]}{drone_id}@192.168.1.91')
             notify_msg.set_metadata("performative", "notify_early_charging")
             notify_msg.body = json.dumps(True)
             await self.send(notify_msg)

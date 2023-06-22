@@ -2,8 +2,8 @@ import asyncio
 import datetime
 import json
 
-from common.base_agent import BaseAgent
-from common.config import (AGENT_NAMES, OPTIMUM_BATTERY_RANGE, DroneStatus,
+from .base_agent import BaseAgent
+from .config import (AGENT_NAMES, OPTIMUM_BATTERY_RANGE, DroneStatus,
                            DroneTargetType, OrderStatus)
 from spade.behaviour import CyclicBehaviour, PeriodicBehaviour
 from spade.message import Message
@@ -35,9 +35,10 @@ class DroneAgent(BaseAgent):
     class LocationReportingBehaviour(PeriodicBehaviour):
         async def run(self):
             # Send current location report to Traffic Control Station Agent
-            location_msg = Message(to=f'{AGENT_NAMES["TRAFFIC_CONTROL_STATION"]}@localhost')
+            location_msg = Message(to=f'{AGENT_NAMES["TRAFFIC_CONTROL_STATION"]}@192.168.1.91')
             location_msg.set_metadata("performative", "inform_location")
             location_msg.body = json.dumps({"drone_id": self.agent.drone_id, "location": self.agent.location})
+            self.agent.agent_say(f'LOCATION SENT: {location_msg.body}')
             await self.send(location_msg)
 
     class BatteryHandlingBehaviour(PeriodicBehaviour):
@@ -55,7 +56,7 @@ class DroneAgent(BaseAgent):
                     self.agent.agent_say(f"Charging completion confirmation sent to TrafficControlStationAgent and ROS2NodeAgent")
 
                 # Send current battery report to Charging Control Station Agent
-                battery_msg = Message(to=f'{AGENT_NAMES["CHARGING_CONTROL_STATION"]}@localhost')
+                battery_msg = Message(to=f'{AGENT_NAMES["CHARGING_CONTROL_STATION"]}@192.168.1.91')
                 battery_msg.set_metadata("performative", "inform_battery")
                 battery_msg.body = json.dumps({"drone_id": self.agent.drone_id, "battery_percentage": self.agent.battery_percentage})
                 await self.send(battery_msg)
@@ -72,20 +73,20 @@ class DroneAgent(BaseAgent):
                     await self.request_charging()
 
         async def request_charging(self):
-            charging_request_msg = Message(to=f'{AGENT_NAMES["TRAFFIC_CONTROL_STATION"]}@localhost')
+            charging_request_msg = Message(to=f'{AGENT_NAMES["TRAFFIC_CONTROL_STATION"]}@192.168.1.91')
             charging_request_msg.set_metadata("performative", "request_charging")
             charging_request_msg.body = json.dumps({"drone_id": self.agent.drone_id})
             await self.send(charging_request_msg)
             self.agent.agent_say(f'Battery level is low. Requesting charging.')
 
         async def send_charging_completion_confirmation_to_traffic_control_station(self):
-            confirmation_msg = Message(to=f'{AGENT_NAMES["TRAFFIC_CONTROL_STATION"]}@localhost')
+            confirmation_msg = Message(to=f'{AGENT_NAMES["TRAFFIC_CONTROL_STATION"]}@192.168.1.91')
             confirmation_msg.set_metadata("performative", "confirm_charging_completion")
             confirmation_msg.body = json.dumps({"drone_id": self.agent.drone_id})
             await self.send(confirmation_msg)
 
         async def send_charging_completion_confirmation_to_ros2_node(self):
-            confirmation_msg = Message(to=f'{AGENT_NAMES["ROS2_NODE"]}@localhost')
+            confirmation_msg = Message(to=f'{AGENT_NAMES["ROS2_NODE"]}@192.168.1.91')
             confirmation_msg.set_metadata("performative", "confirm_charging_completion")
             confirmation_msg.body = json.dumps({"drone_id": self.agent.drone_id})
             await self.send(confirmation_msg)
@@ -130,7 +131,7 @@ class DroneAgent(BaseAgent):
                 await self.send_target(charging_station_target)
 
         async def send_target(self, target):
-            target_msg = Message(to=f'{AGENT_NAMES["ROS2_NODE"]}@localhost')
+            target_msg = Message(to=f'{AGENT_NAMES["ROS2_NODE"]}@192.168.1.91')
             target_msg.set_metadata("performative", "inform_target")
             target_msg.body = json.dumps({"drone_id": self.agent.drone_id, "target": target})
             await self.send(target_msg)
@@ -147,13 +148,13 @@ class DroneAgent(BaseAgent):
                 self.agent.agent_say(f"Charging completion confirmation sent to TrafficControlStationAgent and ROS2NodeAgent")
 
         async def send_charging_completion_confirmation_to_traffic_control_station(self):
-            confirmation_msg = Message(to=f'{AGENT_NAMES["TRAFFIC_CONTROL_STATION"]}@localhost')
+            confirmation_msg = Message(to=f'{AGENT_NAMES["TRAFFIC_CONTROL_STATION"]}@192.168.1.91')
             confirmation_msg.set_metadata("performative", "confirm_charging_completion")
             confirmation_msg.body = json.dumps({"drone_id": self.agent.drone_id})
             await self.send(confirmation_msg)
 
         async def send_charging_completion_confirmation_to_ros2_node(self):
-            confirmation_msg = Message(to=f'{AGENT_NAMES["ROS2_NODE"]}@localhost')
+            confirmation_msg = Message(to=f'{AGENT_NAMES["ROS2_NODE"]}@192.168.1.91')
             confirmation_msg.set_metadata("performative", "confirm_charging_completion")
             confirmation_msg.body = json.dumps({"drone_id": self.agent.drone_id})
             await self.send(confirmation_msg)
@@ -207,7 +208,7 @@ class DroneAgent(BaseAgent):
                 # Update the drone status
                 self.agent.status = DroneStatus.ON_THE_WAY_TO_CHARGING_STATION.value
 
-            target_msg = Message(to=f'{AGENT_NAMES["ROS2_NODE"]}@localhost')
+            target_msg = Message(to=f'{AGENT_NAMES["ROS2_NODE"]}@192.168.1.91')
             target_msg.set_metadata("performative", "inform_target")
             target_msg.body = json.dumps({"drone_id": self.agent.drone_id, "target": target})
             await self.send(target_msg)
@@ -252,7 +253,7 @@ class DroneAgent(BaseAgent):
                 await self.send_target(dispatcher_target)
 
         async def send_order_status_update(self, order_id, status):
-            status_msg = Message(to=f'{AGENT_NAMES["TRAFFIC_CONTROL_STATION"]}@localhost')
+            status_msg = Message(to=f'{AGENT_NAMES["TRAFFIC_CONTROL_STATION"]}@192.168.1.91')
             status_msg.set_metadata("performative", "inform_status")
             status_msg.body = json.dumps({"drone_id": self.agent.drone_id, "order_id": order_id, "status": status})
             await self.send(status_msg)
@@ -269,7 +270,7 @@ class DroneAgent(BaseAgent):
                 # Update the drone status
                 self.agent.status = DroneStatus.ON_THE_WAY_TO_CHARGING_STATION.value
 
-            target_msg = Message(to=f'{AGENT_NAMES["ROS2_NODE"]}@localhost')
+            target_msg = Message(to=f'{AGENT_NAMES["ROS2_NODE"]}@192.168.1.91')
             target_msg.set_metadata("performative", "inform_target")
             target_msg.body = json.dumps({"drone_id": self.agent.drone_id, "target": target})
             await self.send(target_msg)

@@ -28,13 +28,13 @@ class AppAgent(BaseAgent):
             return None
 
         async def send_order_to_dispatcher(self, order_details):
-            order_msg = Message(to=f'{AGENT_NAMES["DISPATCHER"]}@localhost')
+            order_msg = Message(to=f'{AGENT_NAMES["DISPATCHER"]}@192.168.1.91')
             order_msg.set_metadata("performative", "inform_order")
             order_msg.body = json.dumps(order_details)
             await self.send(order_msg)
 
         async def send_order_to_traffic_control_station(self, order_details):
-            order_msg = Message(to=f'{AGENT_NAMES["TRAFFIC_CONTROL_STATION"]}@localhost')
+            order_msg = Message(to=f'{AGENT_NAMES["TRAFFIC_CONTROL_STATION"]}@192.168.1.91')
             order_msg.set_metadata("performative", "inform_order")
             order_msg.body = json.dumps(order_details)
             await self.send(order_msg)

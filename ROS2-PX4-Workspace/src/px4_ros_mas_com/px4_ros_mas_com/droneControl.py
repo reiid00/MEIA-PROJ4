@@ -17,7 +17,7 @@ class DroneTargetType(Enum):
 
 class DroneControl(Node):
 
-    def __init__(self, drone_num=1, goal_position=[0.0,0.0,0.0], current_position=[0.0,0.0,0.0], target_type = "TESTING", drone_agent):
+    def __init__(self, drone_num=1, goal_position=[0.0,0.0,0.0], current_position=[0.0,0.0,0.0], target_type = "TESTING", drone_agent=None):
         super().__init__('DroneControl')
         self.drone_num = drone_num
         self.target_system = drone_num+1
