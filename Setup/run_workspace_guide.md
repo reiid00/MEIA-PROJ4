@@ -189,7 +189,7 @@ For more details, visit the [Micro XRCE-DDS setup guide](https://docs.px4.io/mai
 3. Start Multi-Agent System Orders Manager API in a third terminal tab:
 
     ```bash
-    cd MEIA-PROJ4/ROS2-PX4-Workspace
+    cd MEIA-PROJ4/ROS2-PX4-Workspace/src/px4_ros_mas_com/px4_ros_mas_com/multi_agent_system
     python3 ./order_manager_api.py
     ```
 
