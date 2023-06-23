@@ -8,14 +8,14 @@ from spade.message import Message
 
 
 class ROS2NodeAgent(BaseAgent):
-    def __init__(self, jid: str, password: str, handle_target_reach_confirmation, handle_charging_completion_confirmation):
+    def __init__(self, jid: str, password: str, handle_target_reached_confirmation, handle_charging_completion_confirmation):
         super().__init__(jid, password)
         self.target_reached = {}  # Dictionary to store drone target reached confirmation flags
         # Set up drone target reached confirmation dictionary
         for i in range(1, NUM_DRONES + 1):
             drone_id = str(i)
             self.target_reached[drone_id] = False
-        self.handle_target_reach_confirmation = handle_target_reach_confirmation
+        self.handle_target_reached_confirmation = handle_target_reached_confirmation
         self.handle_charging_completion_confirmation = handle_charging_completion_confirmation
 
     class DroneTargetReachedReportingBehaviour(PeriodicBehaviour):
@@ -25,7 +25,7 @@ class ROS2NodeAgent(BaseAgent):
                 # Reset Flag
                 self.agent.target_reached[drone_id] = False
                 # Send target reached confirmation to corresponding Drone agent
-                self.send_target_reached_confirmation(drone_id)
+                await self.send_target_reached_confirmation(drone_id)
 
         async def send_target_reached_confirmation(self, drone_id):
             confirmation_msg = Message(to=f'{AGENT_NAMES["DRONE"]}{drone_id}@{XMPP_SERVER_URL}')
@@ -43,12 +43,12 @@ class ROS2NodeAgent(BaseAgent):
                     # Receive new target information from Drone Agent
                     target_info = json.loads(msg.body)
                     # Handle target logic using the received new target information
-                    self.handle_target_reach_confirmation(target_info["drone_id"], target_info["target"])
+                    self.agent.handle_target_reached_confirmation(target_info["drone_id"], target_info["target"])
                 elif performative == "confirm_charging_completion":
                     # Receive charging completion confirmation from Drone Agent
                     confirmation_info = json.loads(msg.body)
                     # Handle target reached logic using the received confirmation information
-                    self.handle_charging_completion_confirmation(confirmation_info["drone_id"])
+                    self.agent.handle_charging_completion_confirmation(confirmation_info["drone_id"])
 
     async def setup(self):
         await super().setup()

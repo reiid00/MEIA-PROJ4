@@ -30,15 +30,15 @@ from multi_agent_system.traffic_control_station_agent import TrafficControlStati
 from multi_agent_system.app_agent import AppAgent
 
 def handle_target_reach_confirmation(drone_id, target):
-    DRONE_CONTROLS[drone_id-1].update_location(
-        targetType= target.type, 
-        x = float(target.location.latitude), 
-        y = float(target.location.longitude), 
-        z = - float(target.route_height)
+    DRONE_CONTROLS[int(drone_id)-1].update_location(
+        targetType= target["type"], 
+        x = float(target["location"]["latitude"]), 
+        y = float(target["location"]["longitude"]), 
+        z = - float(target["route_height"])
     )
 
 def handle_charging_completion_confirmation(drone_id):
-    allocate_drone(DRONE_CONTROLS[drone_id-1], LP_LISTENERS)
+    allocate_drone(DRONE_CONTROLS[int(drone_id)-1], LP_LISTENERS)
 
 def run_drones():
     while rclpy.ok():
@@ -46,7 +46,6 @@ def run_drones():
             drone_listener = next((drone_listener for drone_listener in DRONE_LISTENERS if drone_listener.drone_num == drone.drone_num), None)
             drone.update_current_position(drone_listener.current_position)
             rclpy.spin_once(drone)
-            if drone.disarmmed : DRONE_CONTROLS.remove(drone)
             if drone.needs_allocation: allocate_drone(drone, LP_LISTENERS) 
         for drone in DRONE_LISTENERS:
             rclpy.spin_once(drone)
@@ -59,7 +58,7 @@ def allocate_drone(drone, station_array):
     drone_pos = drone.return_current_pos()
     station_to_allocate = allocate_shortest_station(drone_pos[0],drone_pos[1], station_array)
     print(f"[INFO] [2734655362.1823940596] [ControlAgent] Drone {drone.drone_num} allocated to {station_to_allocate.get_station()} ")
-    drone.update_location(station_to_allocate.get_type, station_to_allocate.x, station_to_allocate.y, -20.0)
+    drone.update_location(station_to_allocate.get_type, station_to_allocate.x, station_to_allocate.y, -200.0)
     station_to_allocate.assign_drone()
 
 

@@ -11,7 +11,7 @@ from spade.message import Message
 class DroneAgent(BaseAgent):
     def __init__(self, jid: str, password: str, drone_id: str):
         super().__init__(jid, password)
-        self.drone_id = drone_id
+        self.drone_id = str(drone_id)
         self.status = DroneStatus.UNAVAILABLE.value
         self.location = None
         self.targets = [] # Should follow model { type: DroneTargetType, location: { latitude, longitude }, route_height, order_id (optional), spot_id (optional)}
@@ -33,14 +33,17 @@ class DroneAgent(BaseAgent):
 
     class LocationReportingBehaviour(PeriodicBehaviour):
         async def run(self):
+            if self.agent.location and self.agent.status == DroneStatus.UNAVAILABLE.value:
+                self.agent.status = DroneStatus.AVAILABLE.value
             # Send current location report to Traffic Control Station Agent
             location_msg = Message(to=f'{AGENT_NAMES["TRAFFIC_CONTROL_STATION"]}@{XMPP_SERVER_URL}')
             location_msg.set_metadata("performative", "inform_location")
-            location_msg.body = json.dumps({"drone_id": self.agent.drone_id})
+            location_msg.body = json.dumps({"drone_id": self.agent.drone_id, "location": self.agent.location})
             await self.send(location_msg)
 
     class BatteryHandlingBehaviour(PeriodicBehaviour):
         async def run(self):
+            print(self.agent.battery_percentage)
             # Check if currently charging
             if self.agent.status == DroneStatus.CHARGING.value:
                 # Check if charging is complete
@@ -60,7 +63,7 @@ class DroneAgent(BaseAgent):
                 await self.send(battery_msg)
             
             # Check if needs charging
-            if self.agent.status == DroneStatus.AVAILABLE.value or self.agent.status == DroneStatus.OCCUPIED.value:
+            elif self.agent.status == DroneStatus.AVAILABLE.value or self.agent.status == DroneStatus.OCCUPIED.value:
                 # Check if charging is required based on battery level
                 if self.agent.battery_percentage < OPTIMUM_BATTERY_RANGE[0]:
                     if self.agent.status != DroneStatus.OCCUPIED.value:
@@ -133,7 +136,7 @@ class DroneAgent(BaseAgent):
             target_msg.set_metadata("performative", "inform_target")
             target_msg.body = json.dumps({"drone_id": self.agent.drone_id, "target": target})
             await self.send(target_msg)
-            self.agent.agent_say(f'Sent target: {target["type"].name}')
+            self.agent.agent_say(f'Sent target: {DroneTargetType(target["type"]).name}')
 
         async def handle_early_charging_notification(self, notification):
             if notification:
@@ -176,11 +179,13 @@ class DroneAgent(BaseAgent):
         async def handle_route_instructions(self, route_instructions):
             dispatcher_target = {
                 "type": DroneTargetType.DISPATCHER.value,
+                "order_id": route_instructions["order_id"],
                 "location": route_instructions["dispatcher_location"],
                 "route_height": route_instructions["route_height"],
             }
             customer_target = {
                 "type": DroneTargetType.CUSTOMER.value,
+                "order_id": route_instructions["order_id"],
                 "location": route_instructions["customer_location"],
                 "route_height": route_instructions["route_height"],
                 "qrcode": route_instructions["qrcode"]
@@ -207,20 +212,23 @@ class DroneAgent(BaseAgent):
             await self.send(status_msg)
             self.agent.agent_say(f'Sent order status update: Order {order_id} - Status {status}')
 
-        async def handle_target_reached_confirmation(self):
-            # Remove the current target from the targets list
-            current_target = self.agent.targets.pop(0)
-            self.agent.agent_say(f'Target reached: {current_target["type"].name}')
-
-            if current_target["type"] == DroneTargetType.DISPATCHER.value:
-                # Send order status update to Traffic Control Station Agent
-                self.send_order_status_update(current_target["order_id"], OrderStatus.ARRIVED_AT_DISPATCHER.value)
-            elif current_target["type"] == DroneTargetType.CUSTOMER.value:
-                # Send order status update to Traffic Control Station Agent
-                self.send_order_status_update(current_target["order_id"], OrderStatus.ARRIVED_AT_CUSTOMER.value)
-            elif current_target["type"] == DroneTargetType.CHARGING_STATION.value:
-                # Update the drone status
-                self.agent.status = DroneStatus.CHARGING.value
+        async def handle_target_reached_confirmation(self, confirmation):
+            if confirmation:
+                # Remove the current target from the targets list
+                current_target = self.agent.targets.pop(0)
+                self.agent.agent_say(f'Target reached: {DroneTargetType(current_target["type"]).name}')
+                if current_target["type"] == DroneTargetType.DISPATCHER.value:
+                    # Send order status update to Traffic Control Station Agent
+                    await self.send_order_status_update(current_target["order_id"], OrderStatus.ARRIVED_AT_DISPATCHER.value)
+                elif current_target["type"] == DroneTargetType.CUSTOMER.value:
+                    # Send order status update to Traffic Control Station Agent
+                    await self.send_order_status_update(current_target["order_id"], OrderStatus.ARRIVED_AT_CUSTOMER.value)
+                    # Update the drone status
+                    if self.agent.status == DroneStatus.OCCUPIED.value:
+                        self.agent.status = DroneStatus.AVAILABLE.value
+                elif current_target["type"] == DroneTargetType.CHARGING_STATION.value:
+                    # Update the drone status
+                    self.agent.status = DroneStatus.CHARGING.value
 
             # Send next target, if exists, to ROS2 node agent
             if self.agent.targets:
@@ -229,10 +237,10 @@ class DroneAgent(BaseAgent):
         async def send_target(self, target):
             if target["type"] == DroneTargetType.DISPATCHER.value:
                 # Send order status update to Traffic Control Station Agent
-                self.send_order_status_update(target["order_id"], OrderStatus.ON_THE_WAY_TO_DISPATCHER.value)
+                await self.send_order_status_update(target["order_id"], OrderStatus.ON_THE_WAY_TO_DISPATCHER.value)
             elif target["type"] == DroneTargetType.CUSTOMER.value:
                 # Send order status update to Traffic Control Station Agent
-                self.send_order_status_update(target["order_id"], OrderStatus.ON_THE_WAY_TO_CUSTOMER.value)
+                await self.send_order_status_update(target["order_id"], OrderStatus.ON_THE_WAY_TO_CUSTOMER.value)
             elif target["type"] == DroneTargetType.CHARGING_STATION.value:
                 # Update the drone status
                 self.agent.status = DroneStatus.ON_THE_WAY_TO_CHARGING_STATION.value
@@ -241,7 +249,7 @@ class DroneAgent(BaseAgent):
             target_msg.set_metadata("performative", "inform_target")
             target_msg.body = json.dumps({"drone_id": self.agent.drone_id, "target": target})
             await self.send(target_msg)
-            self.agent.agent_say(f'Sent target: {target["type"].name}')
+            self.agent.agent_say(f'Sent target: {DroneTargetType(target["type"]).name}')
 
     async def setup(self):
         await super().setup()

@@ -126,7 +126,7 @@ class TrafficControlStationAgent(BaseAgent):
 
                 # Set order as completed if drone arrived at customer (for now, Arrived at customer is the final state, because there is no qr code handling yet)
                 if new_status == OrderStatus.ARRIVED_AT_CUSTOMER.value:
-                    self.update_order_status(order_id, OrderStatus.COMPLETED.value)
+                    await self.update_order_status(order_id, OrderStatus.COMPLETED.value)
 
         async def report_order_status(self, order_id, status):
             status_msg = Message(to=f'{AGENT_NAMES["APP"]}@{XMPP_SERVER_URL}')
@@ -138,7 +138,6 @@ class TrafficControlStationAgent(BaseAgent):
         async def run(self):
             msg = await self.receive(timeout=10)
             if msg:
-                print("OK2")
                 performative = msg.get_metadata("performative")
                 if performative == "inform_location":
                     # Receive drone location report from Drone agent

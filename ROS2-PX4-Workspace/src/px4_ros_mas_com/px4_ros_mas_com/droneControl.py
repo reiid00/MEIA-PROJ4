@@ -42,7 +42,7 @@ class DroneControl(Node):
         self.reached_height = False
         self.reached_goal = False
         self.served_purpose = False
-        self.disarmmed = False
+        self.disarmmed = True
 
         self.response_timer_ = None
         self.needs_allocation = False
@@ -50,7 +50,7 @@ class DroneControl(Node):
         timer_period = 0.1  # 100 milliseconds
         self.timer_ = self.create_timer(timer_period, self.timer_callback)
 
-        battery_timer_period = 5.0  # 5 seconds
+        battery_timer_period = 1.0  # 5 seconds
         self.battery_timer_ = self.create_timer(battery_timer_period, self.battery_timer_callback)
 
         self.drone_agent = drone_agent
@@ -61,11 +61,13 @@ class DroneControl(Node):
         if self.disarmmed and self.target_type == DroneTargetType.CHARGING_STATION.value:
             self.drone_agent.battery_percentage = min(self.drone_agent.battery_percentage + 5, 100) # simulate charging 5% per callback
         elif not self.disarmmed:
-            self.drone_agent.battery_percentage = max(self.drone_agent.battery_percentage - 1, 0) # simulate losing 1% per callback
+            self.drone_agent.battery_percentage = max(self.drone_agent.battery_percentage - 5, 0) # simulate losing 1% per callback
 
     def timer_callback(self):
         if self.offboard_setpoint_counter_ == 10:
             # Change to Offboard mode after 10 setpoints
+            self.publish_offboard_control_mode()
+            self.publish_trajectory_setpoint(self.x,self.y,self.z)
             self.publish_vehicle_command(VehicleCommand.VEHICLE_CMD_DO_SET_MODE, 1., 6.)
             # Arm the vehicle
             self.arm()
@@ -80,7 +82,7 @@ class DroneControl(Node):
         # Travel to the destination, set Height to zero
         elif self.reached_height and not self.reached_goal and self.validate_goal_pos(self.goal_position[1], self.goal_position[0], self.current_position[0], self.current_position[1]):
             self.reached_goal = True
-            self.z = self.final_height
+            self.z = self.final_height if self.target_type == DroneTargetType.DISPATCHER.value or self.target_type == DroneTargetType.CUSTOMER.value else 0.1
             self.get_logger().info(f'Drone {self.drone_num} reached preferable destination, going to the ground!')
 
 
@@ -100,14 +102,13 @@ class DroneControl(Node):
             elif not self.disarmmed and self.target_type != DroneTargetType.CUSTOMER.value and self.target_type != DroneTargetType.DISPATCHER.value:
                 if self.target_type == DroneTargetType.CHARGING_STATION.value: 
                     self.drone_reach_location(self.drone_num)
-
                 self.get_logger().info(f'Drone {self.drone_num} reached the ground, disarmming!')
                 self.disarm()
-                self.disarmmed=True
-
-        # Offboard_control_mode needs to be paired with trajectory_setpoint
-        self.publish_offboard_control_mode()
-        self.publish_trajectory_setpoint(self.x,self.y,self.z)
+                
+        if not self.disarmmed:
+            # Offboard_control_mode needs to be paired with trajectory_setpoint
+            self.publish_offboard_control_mode()
+            self.publish_trajectory_setpoint(self.x,self.y,self.z)
 
         # stop the counter after reaching 11
         if (self.offboard_setpoint_counter_ < 11):
@@ -124,33 +125,32 @@ class DroneControl(Node):
         self.response_timer_ = None
 
     def response_timer_callback(self):
-        self.get_logger().info(f'Drone {self.drone_num} did not receive the expected response in {10} seconds, Requesting Land Pad!')
+        if self.target_type == DroneTargetType.CUSTOMER.value:
+            self.get_logger().info(f'Drone {self.drone_num} requesting Landing Pad!')
+        else:
+            self.get_logger().info(f'Drone {self.drone_num} did not receive the expected response in {10} seconds, Requesting Land Pad!')
         self.needs_allocation = True
         self.stop_response_timer()
 
     def update_location(self, targetType, x, y, z):
-        
         # Easier and faster to vis
         z = float(z /10.0)
 
         if self.response_timer_ is not None:
             self.stop_response_timer()
-
-        # In case drone is disarmmed
-        if self.disarmmed:
-            self.publish_vehicle_command(VehicleCommand.VEHICLE_CMD_DO_SET_MODE, 1., 6.)
-            self.arm()
-            
         self.goal_position = [x , y - 3 * self.drone_num, z]
         self.z = z
         self.target_type = targetType
-
         self.reached_height = False
         self.reached_goal = False
         self.served_purpose = False
         self.needs_allocation = False
-
-        
+        # In case drone is disarmmed
+        if self.disarmmed:
+            # self.publish_vehicle_command(VehicleCommand.VEHICLE_CMD_DO_SET_MODE, 1., 6.)
+            self.publish_offboard_control_mode()
+            self.publish_trajectory_setpoint(self.x,self.y,self.z)
+            self.arm()
     
 
     def calculate_angle(self):
@@ -172,11 +172,13 @@ class DroneControl(Node):
 
     # Arm the vehicle
     def arm(self):
+        self.disarmmed=False
         self.publish_vehicle_command(VehicleCommand.VEHICLE_CMD_COMPONENT_ARM_DISARM, 1.0)
         self.get_logger().info(f"Arm command send for Drone {self.drone_num}")
 
     # Disarm the vehicle
     def disarm(self):
+        self.disarmmed=True
         self.publish_vehicle_command(VehicleCommand.VEHICLE_CMD_COMPONENT_ARM_DISARM, 0.0)
         self.get_logger().info(f"Disarm command send for Drone {self.drone_num}")
 

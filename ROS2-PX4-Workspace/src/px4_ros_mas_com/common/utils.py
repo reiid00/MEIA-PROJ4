@@ -1,9 +1,13 @@
 
 from common.config import ENVIRONMENT, EnvironmentType
 from geopy.distance import great_circle
-
+import json
 
 def calculate_distance(location1, location2):
+    if not isinstance(location1, dict):
+        location1 = json.loads(location1)
+    if not isinstance(location2, dict):
+        location2 = json.loads(location2)
     # Check if any location is invalid
     if not location1 or not location2 or \
             "latitude" not in location1 or "longitude" not in location1 or \
