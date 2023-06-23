@@ -150,25 +150,24 @@ For more details, visit the [Micro XRCE-DDS setup guide](https://docs.px4.io/mai
    - Copy the content from the file `./MEIA-PROJ4/Setup/px4-gazebo_utils/plugins/CMakeLists.txt` and paste it into the content of the file `./PX4-Autopilot/Tools/simulation/gazebo-classic/sitl_gazebo-classic/CMakeLists.txt`.
    - Copy the content from the file `./MEIA-PROJ4/Setup/px4-gazebo_utils/empty.world` and paste it into the content of the file `./PX4-Autopilot/Tools/simulation/gazebo-classic/sitl_gazebo-classic/worlds/empty.world`.
 
-  Please note that the paths mentioned above are relative to the root directories of the cloned repository and the PX4-Autopilot project. Adjust the paths accordingly if they differ in your setup.
+  _Please note that the paths mentioned above are relative to the root directories of the cloned repository and the PX4-Autopilot project. Adjust the paths accordingly if they differ in your setup._
 
 3. For the first time, change XMPP_SERVER_URL in file `./MEIA-PROJ4/ROS2-PX4-Workspace/src/px4_ros_mas_com/px4_ros_mas_com/multi_agent_system/common/config.py` to your desired XMPP server url:
 
-  ```bash
-  XMPP_SERVER_URL = "YOUR_DESIRED_XMPP_SERVER_URL"
-  ```
-
-  __If you don't have a XMPP server configured yet, we highly recommend setting up one with [Openfire](https://igniterealtime.org/projects/openfire/).__
+    ```bash
+    XMPP_SERVER_URL = "YOUR_DESIRED_XMPP_SERVER_URL"
+    ```
+    __If you don't have a XMPP server configured yet, we highly recommend setting up one with [Openfire](https://igniterealtime.org/projects/openfire/).__
 
 4. For the first time, install the necessary libraries:
 
-  ```bash
-  cd ROS2-PX4-Workspace
-  pip install spade
-  pip install flask
-  pip install geopy
-  ./fetch_repos.sh
-  ```
+    ```bash
+    cd ROS2-PX4-Workspace
+    pip install spade
+    pip install flask
+    pip install geopy
+    ./fetch_repos.sh
+    ```
 
 ## Start Drone Simulation (With 4 Drones)
 
