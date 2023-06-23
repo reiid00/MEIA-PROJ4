@@ -36,7 +36,7 @@ class DroneAgent(BaseAgent):
             # Send current location report to Traffic Control Station Agent
             location_msg = Message(to=f'{AGENT_NAMES["TRAFFIC_CONTROL_STATION"]}@{XMPP_SERVER_URL}')
             location_msg.set_metadata("performative", "inform_location")
-            location_msg.body = json.dumps({"drone_id": self.agent.drone_id, "location": self.agent.location})
+            location_msg.body = json.dumps({"drone_id": self.agent.drone_id})
             await self.send(location_msg)
 
     class BatteryHandlingBehaviour(PeriodicBehaviour):

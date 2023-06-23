@@ -17,7 +17,7 @@ class DroneTargetType(Enum):
 
 class DroneControl(Node):
 
-    def __init__(self, drone_num=1, goal_position=[0.0,0.0,0.0], current_position=[0.0,0.0,0.0], target_type = "TESTING", drone_agent=None):
+    def __init__(self, drone_num=1, goal_position=[0.0,0.0,0.0], current_position=[0.0,0.0,0.0], target_type = "TESTING", drone_agent=None, drone_reach_location = None):
         super().__init__('DroneControl')
         self.drone_num = drone_num
         self.target_system = drone_num+1
@@ -52,6 +52,8 @@ class DroneControl(Node):
 
         self.drone_agent = drone_agent
 
+        self.drone_reach_location = drone_reach_location
+
         
     def timer_callback(self):
 
@@ -79,16 +81,17 @@ class DroneControl(Node):
         if self.reached_goal and self.validate_height(self.final_height, self.current_position[2]):
             if self.target_type == DroneTargetType.DISPATCHER.value and not self.served_purpose:
                 self.served_purpose = True
-                self.send_request("pickup")
+                self.drone_reach_location(self.drone_num)
                 self.start_response_timer()
                 self.get_logger().info(f'Drone {self.drone_num} reached dispatcher height, waiting for package pickup!')
             if self.target_type == DroneTargetType.CUSTOMER.value and not self.served_purpose:
                 self.served_purpose = True
-                self.send_request("deliver")
+                self.drone_reach_location(self.drone_num)
                 self.start_response_timer()
                 self.get_logger().info(f'Drone {self.drone_num} reached customer height, waiting for package delivery!')
                 #Start Timer
             elif not self.disarmmed and self.target_type != DroneTargetType.CUSTOMER.value and self.target_type != DroneTargetType.DISPATCHER.value:
+                if self.target_type == DroneTargetType.CHARGING_STATION.value: self.drone_reach_location(self.drone_num)
                 self.get_logger().info(f'Drone {self.drone_num} reached the ground, disarmming!')
                 self.disarm()
                 self.disarmmed=True
@@ -117,6 +120,9 @@ class DroneControl(Node):
         self.stop_response_timer()
 
     def update_location(self, targetType, x, y, z):
+        
+        # Easier and faster to vis
+        z = float(z /10.0)
 
         if self.response_timer_ is not None:
             self.stop_response_timer()
@@ -187,6 +193,7 @@ class DroneControl(Node):
     '''
 
     def publish_trajectory_setpoint(self, x = 0.0, y = 0.0, z = 0.0):
+        x, y, z = float(x), float(y), float(z)
         msg = TrajectorySetpoint()
         msg.position = [x,y,z] 
         msg.yaw = 0.0  # [-PI:PI]

@@ -3,7 +3,7 @@
 from enum import Enum
 
 # Define internal configurations
-HEIGHT_RANGE = (150.0, 200.0) # Height range allowed for drones, in meters
+HEIGHT_RANGE = (150, 200) # Height range allowed for drones, in meters
 OPTIMUM_BATTERY_RANGE = (20, 80) # Optimum battery range for drones, in percentage
 NUM_DRONES = 4  # Number of drone agents
 AGENT_NAMES = {
@@ -15,6 +15,7 @@ AGENT_NAMES = {
     "DISPATCHER": "dispatcher_agent",
     "ROS2_NODE": "ros2_node_agent"
 }
+XMPP_SERVER_URL = "192.168.1.91"
 
 # Define external configurations
 DISPATCHER_API_URL = "https://dispatcher.simulation/orders"
