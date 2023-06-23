@@ -1,0 +1,2 @@
+Invoking command in '/home/agmeister/proj4/MEIA-PROJ4/build/mavlink_sitl_gazebo': /usr/bin/cmake /home/agmeister/proj4/MEIA-PROJ4/Documentação/px4-gazebo_utils/plugins -DCMAKE_INSTALL_PREFIX=/home/agmeister/proj4/MEIA-PROJ4/install/mavlink_sitl_gazebo
+Invoked command in '/home/agmeister/proj4/MEIA-PROJ4/build/mavlink_sitl_gazebo' returned '1': /usr/bin/cmake /home/agmeister/proj4/MEIA-PROJ4/Documentação/px4-gazebo_utils/plugins -DCMAKE_INSTALL_PREFIX=/home/agmeister/proj4/MEIA-PROJ4/install/mavlink_sitl_gazebo

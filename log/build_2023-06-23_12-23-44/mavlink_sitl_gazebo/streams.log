@@ -1,0 +1,121 @@
+[0.046s] Invoking command in '/home/agmeister/proj4/MEIA-PROJ4/build/mavlink_sitl_gazebo': /usr/bin/cmake /home/agmeister/proj4/MEIA-PROJ4/Documentação/px4-gazebo_utils/plugins -DCMAKE_INSTALL_PREFIX=/home/agmeister/proj4/MEIA-PROJ4/install/mavlink_sitl_gazebo
+[0.048s] -- install-prefix: /home/agmeister/proj4/MEIA-PROJ4/install/mavlink_sitl_gazebo
+[0.048s] -- cmake build type: RelWithDebInfo
+[0.938s] -- The C compiler identification is GNU 9.4.0
+[2.736s] -- The CXX compiler identification is GNU 9.4.0
+[3.766s] -- Check for working C compiler: /usr/bin/cc
+[4.376s] -- Check for working C compiler: /usr/bin/cc -- works
+[4.379s] -- Detecting C compiler ABI info
+[4.941s] -- Detecting C compiler ABI info - done
+[4.957s] -- Detecting C compile features
+[4.959s] -- Detecting C compile features - done
+[4.964s] -- Check for working CXX compiler: /usr/bin/c++
+[5.575s] -- Check for working CXX compiler: /usr/bin/c++ -- works
+[5.576s] -- Detecting CXX compiler ABI info
+[6.052s] -- Detecting CXX compiler ABI info - done
+[6.072s] -- Detecting CXX compile features
+[6.072s] -- Detecting CXX compile features - done
+[6.073s] CMake Error at CMakeLists.txt:26 (include):
+[6.074s]   include could not find load file:
+[6.074s] 
+[6.075s]     EnableC++XX
+[6.075s] 
+[6.075s] 
+[6.075s] CMake Error at CMakeLists.txt:32 (include):
+[6.076s]   include could not find load file:
+[6.076s] 
+[6.076s]     ccache
+[6.076s] 
+[6.076s] 
+[8.841s] -- Found Boost: /usr/lib/x86_64-linux-gnu/cmake/Boost-1.71.0/BoostConfig.cmake (found suitable version "1.71.0", minimum required is "1.58") found components: system thread filesystem 
+[8.863s] -- Found PkgConfig: /usr/bin/pkg-config (found version "0.29.1") 
+[8.878s] -- Checking for module 'bullet>=2.82'
+[8.907s] --   Found bullet, version 2.88
+[16.219s] -- Found ccd: /usr/include (found suitable version "2.0", minimum required is "2.0") 
+[16.613s] -- Found fcl: /usr/include (found suitable version "0.5.0", minimum required is "0.3.2") 
+[17.167s] -- Found assimp: /usr/include (found version "5.0.0") 
+[17.201s] -- Found DART: /usr/include (Required is at least version "6.6") found components: dart 
+[17.227s] -- Found Boost: /usr/lib/x86_64-linux-gnu/cmake/Boost-1.71.0/BoostConfig.cmake (found suitable version "1.71.0", minimum required is "1.40.0") found components: thread system filesystem program_options regex iostreams date_time 
+[19.602s] -- Found Protobuf: /usr/lib/x86_64-linux-gnu/libprotobuf.so;-lpthread (found version "3.6.1") 
+[19.608s] -- Looking for ignition-math6 -- found version 6.14.0
+[19.616s] -- Searching for dependencies of ignition-math6
+[19.619s] -- Looking for OGRE...
+[19.619s] -- OGRE_PREFIX_WATCH changed.
+[19.625s] -- Checking for module 'OGRE'
+[19.646s] --   Found OGRE, version 1.9.0
+[20.250s] -- Found Ogre Ghadamon (1.9.0)
+[24.635s] -- Found OGRE: optimized;/usr/lib/x86_64-linux-gnu/libOgreMain.so;debug;/usr/lib/x86_64-linux-gnu/libOgreMain.so
+[24.649s] -- Looking for OGRE_Paging...
+[26.880s] -- Found OGRE_Paging: optimized;/usr/lib/x86_64-linux-gnu/libOgrePaging.so;debug;/usr/lib/x86_64-linux-gnu/libOgrePaging.so
+[26.881s] -- Looking for OGRE_Terrain...
+[29.327s] -- Found OGRE_Terrain: optimized;/usr/lib/x86_64-linux-gnu/libOgreTerrain.so;debug;/usr/lib/x86_64-linux-gnu/libOgreTerrain.so
+[29.328s] -- Looking for OGRE_Property...
+[31.787s] -- Found OGRE_Property: optimized;/usr/lib/x86_64-linux-gnu/libOgreProperty.so;debug;/usr/lib/x86_64-linux-gnu/libOgreProperty.so
+[31.787s] -- Looking for OGRE_RTShaderSystem...
+[34.046s] -- Found OGRE_RTShaderSystem: optimized;/usr/lib/x86_64-linux-gnu/libOgreRTShaderSystem.so;debug;/usr/lib/x86_64-linux-gnu/libOgreRTShaderSystem.so
+[34.046s] -- Looking for OGRE_Volume...
+[36.216s] -- Found OGRE_Volume: optimized;/usr/lib/x86_64-linux-gnu/libOgreVolume.so;debug;/usr/lib/x86_64-linux-gnu/libOgreVolume.so
+[36.217s] -- Looking for OGRE_Overlay...
+[38.373s] -- Found OGRE_Overlay: optimized;/usr/lib/x86_64-linux-gnu/libOgreOverlay.so;debug;/usr/lib/x86_64-linux-gnu/libOgreOverlay.so
+[295.213s] -- Looking for ignition-math6 -- found version 6.14.0
+[295.224s] -- Looking for ignition-transport8 -- found version 8.4.0
+[295.231s] -- Searching for dependencies of ignition-transport8
+[307.390s] -- Found Protobuf: /usr/lib/x86_64-linux-gnu/libprotobuf.so;-lpthread (found suitable version "3.6.1", minimum required is "3") 
+[320.444s] -- Config-file not installed for ZeroMQ -- checking for pkg-config
+[320.579s] -- Checking for module 'libzmq >= 4'
+[321.054s] --   Found libzmq , version 4.3.2
+[322.598s] -- Found ZeroMQ: TRUE (Required is at least version "4") 
+[323.061s] -- Checking for module 'uuid'
+[323.171s] --   Found uuid, version 2.34.0
+[324.588s] -- Found UUID: TRUE  
+[324.644s] -- Looking for ignition-msgs5 -- found version 5.11.0
+[324.650s] -- Searching for dependencies of ignition-msgs5
+[334.760s] -- Looking for ignition-math6 -- found version 6.14.0
+[334.771s] -- Checking for module 'tinyxml2'
+[334.802s] --   Found tinyxml2, version 6.2.0
+[335.609s] -- Looking for ignition-msgs5 -- found version 5.11.0
+[335.620s] -- Looking for ignition-common3 -- found version 3.16.0
+[335.621s] -- Searching for dependencies of ignition-common3
+[336.026s] -- Looking for dlfcn.h - found
+[336.590s] -- Looking for libdl - found
+[336.605s] -- Found DL: TRUE  
+[337.390s] -- Searching for <ignition-common3> component [graphics]
+[337.396s] -- Looking for ignition-common3-graphics -- found version 3.16.0
+[337.399s] -- Searching for dependencies of ignition-common3-graphics
+[337.400s] -- Looking for ignition-math6 -- found version 6.14.0
+[337.411s] -- Looking for ignition-fuel_tools4 -- found version 4.9.0
+[337.412s] -- Searching for dependencies of ignition-fuel_tools4
+[340.562s] -- Found CURL: /usr/lib/x86_64-linux-gnu/libcurl.so (found version "7.68.0")  
+[340.652s] -- Checking for module 'jsoncpp'
+[340.755s] --   Found jsoncpp, version 1.7.4
+[342.407s] -- Found JSONCPP: TRUE  
+[342.460s] -- Checking for module 'libzip'
+[342.576s] --   Found libzip, version 1.5.1
+[344.079s] -- Found ZIP: TRUE  
+[344.080s] -- Looking for ignition-common3 -- found version 3.16.0
+[344.090s] -- Looking for ignition-math6 -- found version 6.14.0
+[344.091s] -- Looking for ignition-msgs5 -- found version 5.11.0
+[344.182s] -- Checking for one of the modules 'glib-2.0'
+[345.333s] -- Found PythonInterp: /usr/bin/python3 (found suitable version "3.8.10", minimum required is "3") 
+[345.413s] -- Found OpenCV: /usr (found version "4.2.0") 
+[357.537s] CMake Error at CMakeLists.txt:65 (find_package):
+[357.539s]   By not providing "FindTinyXML.cmake" in CMAKE_MODULE_PATH this project has
+[357.540s]   asked CMake to find a package configuration file provided by "TinyXML", but
+[357.540s]   CMake did not find one.
+[357.540s] 
+[357.540s]   Could not find a package configuration file provided by "TinyXML" with any
+[357.540s]   of the following names:
+[357.541s] 
+[357.541s]     TinyXMLConfig.cmake
+[357.541s]     tinyxml-config.cmake
+[357.541s] 
+[357.542s]   Add the installation prefix of "TinyXML" to CMAKE_PREFIX_PATH or set
+[357.542s]   "TinyXML_DIR" to a directory containing one of the above files.  If
+[357.542s]   "TinyXML" provides a separate development package or SDK, be sure it has
+[357.542s]   been installed.
+[357.542s] 
+[357.543s] 
+[357.603s] -- Configuring incomplete, errors occurred!
+[357.604s] See also "/home/agmeister/proj4/MEIA-PROJ4/build/mavlink_sitl_gazebo/CMakeFiles/CMakeOutput.log".
+[357.604s] See also "/home/agmeister/proj4/MEIA-PROJ4/build/mavlink_sitl_gazebo/CMakeFiles/CMakeError.log".
+[358.176s] Invoked command in '/home/agmeister/proj4/MEIA-PROJ4/build/mavlink_sitl_gazebo' returned '1': /usr/bin/cmake /home/agmeister/proj4/MEIA-PROJ4/Documentação/px4-gazebo_utils/plugins -DCMAKE_INSTALL_PREFIX=/home/agmeister/proj4/MEIA-PROJ4/install/mavlink_sitl_gazebo

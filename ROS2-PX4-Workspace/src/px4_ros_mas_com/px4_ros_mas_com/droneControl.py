@@ -50,14 +50,21 @@ class DroneControl(Node):
         timer_period = 0.1  # 100 milliseconds
         self.timer_ = self.create_timer(timer_period, self.timer_callback)
 
+        battery_timer_period = 5.0  # 5 seconds
+        self.battery_timer_ = self.create_timer(battery_timer_period, self.battery_timer_callback)
+
         self.drone_agent = drone_agent
 
         self.drone_reach_location = drone_reach_location
 
-        
-    def timer_callback(self):
+    def battery_timer_callback(self):
+        if self.disarmmed and self.target_type == DroneTargetType.CHARGING_STATION.value:
+            self.drone_agent.battery_percentage = min(self.drone_agent.battery_percentage + 5, 100) # simulate charging 5% per callback
+        elif not self.disarmmed:
+            self.drone_agent.battery_percentage = max(self.drone_agent.battery_percentage - 1, 0) # simulate losing 1% per callback
 
-        if (self.offboard_setpoint_counter_ == 10):
+    def timer_callback(self):
+        if self.offboard_setpoint_counter_ == 10:
             # Change to Offboard mode after 10 setpoints
             self.publish_vehicle_command(VehicleCommand.VEHICLE_CMD_DO_SET_MODE, 1., 6.)
             # Arm the vehicle
@@ -91,7 +98,9 @@ class DroneControl(Node):
                 self.get_logger().info(f'Drone {self.drone_num} reached customer height, waiting for package delivery!')
                 #Start Timer
             elif not self.disarmmed and self.target_type != DroneTargetType.CUSTOMER.value and self.target_type != DroneTargetType.DISPATCHER.value:
-                if self.target_type == DroneTargetType.CHARGING_STATION.value: self.drone_reach_location(self.drone_num)
+                if self.target_type == DroneTargetType.CHARGING_STATION.value: 
+                    self.drone_reach_location(self.drone_num)
+
                 self.get_logger().info(f'Drone {self.drone_num} reached the ground, disarmming!')
                 self.disarm()
                 self.disarmmed=True

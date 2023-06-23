@@ -1,5 +1,8 @@
 
 import rclpy
+import spade
+import threading
+
 from rclpy.node import Node
 from rclpy.clock import Clock
 from rclpy.qos import QoSProfile, HistoryPolicy, ReliabilityPolicy, DurabilityPolicy
@@ -17,18 +20,14 @@ from .landPadListener import LandPadListener
 from .chargingSpotListener import ChargingSpotListener
 
 from std_msgs.msg import String 
-from multi_agent_system.drone_agent import DroneAgent
-from multi_agent_system.common.config import AGENT_NAMES, NUM_DRONES, HEIGHT_RANGE, XMPP_SERVER_URL
+from common.config import AGENT_NAMES, NUM_DRONES, HEIGHT_RANGE, XMPP_SERVER_URL
 from .utils import create_lp_cs_locations, allocate_shortest_station
+from multi_agent_system.drone_agent import DroneAgent
 from multi_agent_system.ros2_node_agent import ROS2NodeAgent
 from multi_agent_system.charging_control_station_agent import ChargingControlStationAgent
 from multi_agent_system.dispatcher_agent import DispatcherAgent
 from multi_agent_system.traffic_control_station_agent import TrafficControlStationAgent
 from multi_agent_system.app_agent import AppAgent
-
-import spade
-
-import threading
 
 def handle_target_reach_confirmation(drone_id, target):
     DRONE_CONTROLS[drone_id-1].update_location(
