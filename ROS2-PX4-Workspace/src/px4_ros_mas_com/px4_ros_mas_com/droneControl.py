@@ -1,23 +1,15 @@
 import rclpy
 from rclpy.node import Node
 from rclpy.clock import Clock
-from enum import Enum
 from px4_msgs.msg import OffboardControlMode
 from px4_msgs.msg import TrajectorySetpoint
 from px4_msgs.msg import VehicleCommand
-from rclpy.duration import Duration
+from common.config import BATTERY_CHARGING_RATE, BATTERY_LOSS_RATE, DroneTargetType
 import json
-
-class DroneTargetType(Enum):
-    DISPATCHER = 1
-    CUSTOMER = 2
-    CHARGING_STATION = 3
-    LAND_PAD = 4
-
 
 class DroneControl(Node):
 
-    def __init__(self, drone_num=1, goal_position=[0.0,0.0,0.0], current_position=[0.0,0.0,0.0], target_type = "TESTING", drone_agent=None, drone_reach_location = None):
+    def __init__(self, drone_num=1, goal_position=[0.0,0.0,0.0], current_position=[0.0,0.0,0.0], target_type = "TESTING", drone_agent=None, confirm_drone_target_reached = None):
         super().__init__('DroneControl')
         self.drone_num = drone_num
         self.target_system = drone_num+1
@@ -47,21 +39,21 @@ class DroneControl(Node):
         self.response_timer_ = None
         self.needs_allocation = False
 
-        timer_period = 0.1  # 100 milliseconds
+        timer_period = 0.1  # per 100ms
         self.timer_ = self.create_timer(timer_period, self.timer_callback)
 
-        battery_timer_period = 1.0  # 5 seconds
+        battery_timer_period = 1.0  # per 1s
         self.battery_timer_ = self.create_timer(battery_timer_period, self.battery_timer_callback)
 
         self.drone_agent = drone_agent
 
-        self.drone_reach_location = drone_reach_location
+        self.confirm_drone_target_reached = confirm_drone_target_reached
 
     def battery_timer_callback(self):
         if self.disarmmed and self.target_type == DroneTargetType.CHARGING_STATION.value:
-            self.drone_agent.battery_percentage = min(self.drone_agent.battery_percentage + 5, 100) # simulate charging 5% per callback
+            self.drone_agent.battery_percentage = min(self.drone_agent.battery_percentage + BATTERY_CHARGING_RATE, 100) # simulate battery gain when charging
         elif not self.disarmmed:
-            self.drone_agent.battery_percentage = max(self.drone_agent.battery_percentage - 5, 0) # simulate losing 1% per callback
+            self.drone_agent.battery_percentage = max(self.drone_agent.battery_percentage - BATTERY_LOSS_RATE, 0) # simulate battery loss when active/moving
 
     def timer_callback(self):
         if self.offboard_setpoint_counter_ == 10:
@@ -90,18 +82,18 @@ class DroneControl(Node):
         if self.reached_goal and self.validate_height(self.final_height, self.current_position[2]):
             if self.target_type == DroneTargetType.DISPATCHER.value and not self.served_purpose:
                 self.served_purpose = True
-                self.drone_reach_location(self.drone_num)
+                self.confirm_drone_target_reached(self.drone_num)
                 self.start_response_timer()
                 self.get_logger().info(f'Drone {self.drone_num} reached dispatcher height, waiting for package pickup!')
             if self.target_type == DroneTargetType.CUSTOMER.value and not self.served_purpose:
                 self.served_purpose = True
-                self.drone_reach_location(self.drone_num)
+                self.confirm_drone_target_reached(self.drone_num)
                 self.start_response_timer()
                 self.get_logger().info(f'Drone {self.drone_num} reached customer height, waiting for package delivery!')
                 #Start Timer
             elif not self.disarmmed and self.target_type != DroneTargetType.CUSTOMER.value and self.target_type != DroneTargetType.DISPATCHER.value:
                 if self.target_type == DroneTargetType.CHARGING_STATION.value: 
-                    self.drone_reach_location(self.drone_num)
+                    self.confirm_drone_target_reached(self.drone_num)
                 self.get_logger().info(f'Drone {self.drone_num} reached the ground, disarmming!')
                 self.disarm()
                 

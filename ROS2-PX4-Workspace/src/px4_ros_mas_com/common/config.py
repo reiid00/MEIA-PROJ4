@@ -5,7 +5,12 @@ from enum import Enum
 # Define internal configurations
 HEIGHT_RANGE = (150, 200) # Height range allowed for drones, in meters
 OPTIMUM_BATTERY_RANGE = (20, 80) # Optimum battery range for drones, in percentage
+BATTERY_CHARGING_RATE = 1 # Battery gained per second when charging, in percentage
+BATTERY_LOSS_RATE = 1 # Battery loss per second when active/moving, in percentage
 NUM_DRONES = 4  # Number of drone agents
+NUM_CHARGING_STATIONS = 4  # Number of charging stations
+NUM_CHARGING_PADS_PER_CHARGING_STATION = 4  # Number of charging pads per charging station
+BASE_COORDINATE = 20.0
 AGENT_NAMES = {
     "CUSTOMER": "customer_agent",
     "APP": "app_agent",
@@ -56,6 +61,7 @@ class DroneTargetType(Enum):
     DISPATCHER = 1
     CUSTOMER = 2
     CHARGING_STATION = 3
+    LAND_PAD = 4
 
 class EnvironmentType(Enum):
     Development = 1

@@ -16,7 +16,7 @@ class TrafficControlStationAgent(BaseAgent):
         self.orders = {}  # Dictionary to store order information and status
         self.pending_assignment_orders = []  # List to store pending assignment orders
 
-        # Set up drones dictionary
+        # Setup drones dictionary
         for i in range(1, NUM_DRONES + 1):
             drone_id = str(i)
             self.drones[drone_id] = {
@@ -24,6 +24,7 @@ class TrafficControlStationAgent(BaseAgent):
                 "location": None,
                 # Assign a valid route height for each drone, adding 5 meters in between each drone, starting from the bottom value in range
                 "route_height": max((HEIGHT_RANGE[0] + ((i - 1) * 5)), HEIGHT_RANGE[1]), 
+                "max_weight": float(1 * i), # max weight allowed per drone, in kg (multiplied i to simulate different characteristics)
                 "assigned_order": None
             }
 
@@ -40,12 +41,12 @@ class TrafficControlStationAgent(BaseAgent):
 
             self.agent.agent_say(f"Attempting to assign order {order_id}...")
 
-            # Find the best available drone (closest to dispatcher location)
+            # Find the best available drone (closest available drone to dispatcher location with enough weight capacity)
             dispatcher_location = details["dispatcher_location"]
             available_drones = [(drone_id, drone_info) for drone_id, drone_info in self.agent.drones.items()
-                if drone_info["status"] == DroneStatus.AVAILABLE.value]
+                if drone_info["status"] == DroneStatus.AVAILABLE.value and drone_info["max_weight"] >= float(details["weight"])]
             if available_drones:
-                closest_drone = min(
+                best_drone = min(
                     available_drones,
                     key=lambda drone: calculate_distance(dispatcher_location, drone[1]["location"])
                 )[0]
@@ -54,10 +55,10 @@ class TrafficControlStationAgent(BaseAgent):
                 self.agent.orders[order_id] = {
                     "details": details,
                     "status": OrderStatus.ASSIGNED.value,
-                    "assigned_drone": closest_drone
+                    "assigned_drone": best_drone
                 }
 
-                self.agent.agent_say(f"Order {order_id} assigned to drone: {closest_drone}")
+                self.agent.agent_say(f"Order {order_id} assigned to drone: {best_drone}")
 
                 # Send route instructions to the assigned drone
                 route_instructions = {
@@ -65,9 +66,9 @@ class TrafficControlStationAgent(BaseAgent):
                     "dispatcher_location": details["dispatcher_location"],
                     "customer_location": details["customer_location"],
                     "qrcode": details["qrcode"],
-                    "route_height": self.agent.drones[closest_drone]["route_height"]
+                    "route_height": self.agent.drones[best_drone]["route_height"]
                 }
-                await self.send_assigned_route_instructions(closest_drone, route_instructions)
+                await self.send_assigned_route_instructions(best_drone, route_instructions)
 
                 # Update order status to "ON_THE_WAY_TO_DISPATCHER"
                 self.agent.orders[order_id]["status"] = OrderStatus.ON_THE_WAY_TO_DISPATCHER.value

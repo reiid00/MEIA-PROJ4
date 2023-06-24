@@ -1,5 +1,6 @@
 import sys
-BASE_COORDINATE = 20.0
+from common.config import BASE_COORDINATE
+
 def generate_station_coordinates(x, y):
     return {
         1: (x + 1, y + 1),
@@ -23,6 +24,19 @@ def create_lp_cs_locations():
     charging_stations = {i: generate_station_coordinates(x, y) for i, (x, y) in enumerate(cs_stations, 1)}
     
     return land_pads, charging_stations
+
+def get_charging_station_spot_coordinates(charging_station_id, spot_id, charging_stations):
+    try:
+        if charging_station_id not in charging_stations: raise ValueError("Invalid charging station ID")
+    
+        station_coordinates = charging_stations[charging_station_id]
+        if spot_id not in station_coordinates: raise ValueError("Invalid spot ID for the given charging station")
+        
+        (latitude, longitude) = station_coordinates[spot_id]
+        return latitude, longitude
+    except ValueError as e:
+        print("Error:", str(e))
+        return 0.0, 0.0
 
 def allocate_shortest_station(drone_pos_x, drone_pos_y , array_station):
     shortest_distance = sys.float_info.max

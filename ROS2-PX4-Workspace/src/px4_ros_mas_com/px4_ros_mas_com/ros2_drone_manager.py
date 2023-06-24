@@ -3,25 +3,13 @@ import rclpy
 import spade
 import threading
 
-from rclpy.node import Node
-from rclpy.clock import Clock
-from rclpy.qos import QoSProfile, HistoryPolicy, ReliabilityPolicy, DurabilityPolicy
-
-from px4_msgs.msg import OffboardControlMode
-from px4_msgs.msg import TrajectorySetpoint
-from px4_msgs.msg import VehicleCommand
-from px4_msgs.msg import VehicleControlMode
-from px4_msgs.msg import VehicleLocalPosition
-from px4_msgs.msg import VehicleAttitude
-
-from .droneControl import DroneControl, DroneTargetType
+from .droneControl import DroneControl
 from .droneListener import DroneListener
 from .landPadListener import LandPadListener
 from .chargingSpotListener import ChargingSpotListener
 
-from std_msgs.msg import String 
-from common.config import AGENT_NAMES, NUM_DRONES, HEIGHT_RANGE, XMPP_SERVER_URL
-from .utils import create_lp_cs_locations, allocate_shortest_station
+from common.config import AGENT_NAMES, NUM_DRONES, HEIGHT_RANGE, XMPP_SERVER_URL, DroneTargetType
+from .utils import create_lp_cs_locations, allocate_shortest_station, get_charging_station_spot_coordinates
 from multi_agent_system.drone_agent import DroneAgent
 from multi_agent_system.ros2_node_agent import ROS2NodeAgent
 from multi_agent_system.charging_control_station_agent import ChargingControlStationAgent
@@ -29,11 +17,16 @@ from multi_agent_system.dispatcher_agent import DispatcherAgent
 from multi_agent_system.traffic_control_station_agent import TrafficControlStationAgent
 from multi_agent_system.app_agent import AppAgent
 
-def handle_target_reach_confirmation(drone_id, target):
+def handle_new_drone_target_received(drone_id, target):
+    if target["type"] == DroneTargetType.CHARGING_STATION.value:
+        latitude, longitude = get_charging_station_spot_coordinates(target["charging_station_id"], target["spot_id"], CHARGING_STATIONS)
+    else:
+        latitude, longitude = float(target["location"]["latitude"]), float(target["location"]["longitude"])
+
     DRONE_CONTROLS[int(drone_id)-1].update_location(
         targetType= target["type"], 
-        x = float(target["location"]["latitude"]), 
-        y = float(target["location"]["longitude"]), 
+        x = latitude, 
+        y = longitude, 
         z = - float(target["route_height"])
     )
 
@@ -80,7 +73,7 @@ def init_spade_agents():
     for i in range(1, NUM_DRONES + 1):
         DRONE_AGENTS.append(DroneAgent(f'{AGENT_NAMES["DRONE"]}{i}@{XMPP_SERVER_URL}', "admin", i))
 
-def drone_reach_location(drone_id):
+def confirm_drone_target_reached(drone_id):
     ROS2_NODE_AGENT.target_reached[drone_id] = True
 
 def init_drone_arrays():
@@ -88,7 +81,7 @@ def init_drone_arrays():
         DRONE_LISTENERS.append(DroneListener(i))
         rclpy.spin_once(DRONE_LISTENERS[i-1])
         drone_x, drone_y = allocate_drone_initial(DRONE_LISTENERS[i-1].current_position[0], DRONE_LISTENERS[i-1].current_position[1], i, LP_LISTENERS)
-        DRONE_CONTROLS.append(DroneControl(i,[drone_x,drone_y,-max((HEIGHT_RANGE[0] + ((i - 1) * 5)), HEIGHT_RANGE[1]) / 10.0], DRONE_LISTENERS[i-1].current_position,DroneTargetType.LAND_PAD.value, DRONE_AGENTS[i-1], drone_reach_location))
+        DRONE_CONTROLS.append(DroneControl(i,[drone_x,drone_y,-max((HEIGHT_RANGE[0] + ((i - 1) * 5)), HEIGHT_RANGE[1]) / 10.0], DRONE_LISTENERS[i-1].current_position,DroneTargetType.LAND_PAD.value, DRONE_AGENTS[i-1], confirm_drone_target_reached))
 
 async def run_agents():
     for agent in DRONE_AGENTS:
@@ -117,20 +110,22 @@ def run_spade():
     spade.run(run_agents())
 
 def init_lp_CS_LISTENERS():
-    land_pads, charging_stations = create_lp_cs_locations()
+    LAND_PADS, CHARGING_STATIONS = create_lp_cs_locations()
     for i in range(1,5):
         for j in range(1,5):
-            x_lp, y_lp = land_pads[i][j]
-            x_cs, y_cs = charging_stations[i][j]
+            x_lp, y_lp = LAND_PADS[i][j]
+            x_cs, y_cs = CHARGING_STATIONS[i][j]
             LP_LISTENERS.append(LandPadListener(i, j, x_lp, y_lp))
             CS_LISTENERS.append(ChargingSpotListener(i, j, x_cs, y_cs))
 
+LAND_PADS = []
+CHARGING_STATIONS = []
 DRONE_CONTROLS = []
 DRONE_LISTENERS = []
 DRONE_AGENTS = []
 LP_LISTENERS = []
 CS_LISTENERS = []
-ROS2_NODE_AGENT = ROS2NodeAgent(f'{AGENT_NAMES["ROS2_NODE"]}@{XMPP_SERVER_URL}', "admin", handle_target_reach_confirmation, handle_charging_completion_confirmation)
+ROS2_NODE_AGENT = ROS2NodeAgent(f'{AGENT_NAMES["ROS2_NODE"]}@{XMPP_SERVER_URL}', "admin", handle_new_drone_target_received, handle_charging_completion_confirmation)
 APP_AGENT = AppAgent(f'{AGENT_NAMES["APP"]}@{XMPP_SERVER_URL}', "admin")
 TRAFFIC_CONTROL_STATION_AGENT = TrafficControlStationAgent(f'{AGENT_NAMES["TRAFFIC_CONTROL_STATION"]}@{XMPP_SERVER_URL}', "admin")
 CHARGING_CONTROL_STATION_AGENT = ChargingControlStationAgent(f'{AGENT_NAMES["CHARGING_CONTROL_STATION"]}@{XMPP_SERVER_URL}', "admin")

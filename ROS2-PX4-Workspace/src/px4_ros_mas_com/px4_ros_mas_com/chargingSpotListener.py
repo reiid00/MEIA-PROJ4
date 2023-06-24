@@ -1,6 +1,5 @@
 import rclpy
 from rclpy.node import Node
-from rclpy.qos import QoSProfile, HistoryPolicy, ReliabilityPolicy, DurabilityPolicy
 from std_msgs.msg import String
 import re
 

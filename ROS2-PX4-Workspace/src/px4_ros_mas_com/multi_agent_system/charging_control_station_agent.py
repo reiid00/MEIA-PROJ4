@@ -1,7 +1,8 @@
 import json
 
 from common.base_agent import BaseAgent
-from common.config import (AGENT_NAMES, OPTIMUM_BATTERY_RANGE, XMPP_SERVER_URL, ChargingStationSpotStatus, ChargingStationStatus)
+from common.config import (AGENT_NAMES, OPTIMUM_BATTERY_RANGE, XMPP_SERVER_URL, ChargingStationSpotStatus, ChargingStationStatus, 
+    NUM_CHARGING_STATIONS, NUM_CHARGING_PADS_PER_CHARGING_STATION, BASE_COORDINATE)
 from common.utils import calculate_distance
 from spade.behaviour import CyclicBehaviour
 from spade.message import Message
@@ -10,19 +11,38 @@ from spade.message import Message
 class ChargingControlStationAgent(BaseAgent):
     def __init__(self, jid: str, password: str):
         super().__init__(jid, password)
-        # Simulated existing charging stations
-        self.charging_stations = [
-            {
-                "id": 1,
-                "location": { "latitude": 40.51, "longitude": 10.55 },
-                "status": ChargingStationStatus.AVAILABLE.value,
-                "spots": [
-                    { "id": 1, "status": ChargingStationSpotStatus.AVAILABLE.value, "charging_drone": None },
-                    { "id": 2, "status": ChargingStationSpotStatus.AVAILABLE.value, "charging_drone": None },
-                    { "id": 3, "status": ChargingStationSpotStatus.AVAILABLE.value, "charging_drone": None }
-                ]
+
+        # Setup charging stations list
+        self.charging_stations = []
+        for i in range(NUM_CHARGING_STATIONS):
+            location = {
+                "latitude": 0.0,
+                "longitude": 0.0
             }
-        ]
+
+            group_index = i // 4
+            offset_index = i % 4
+
+            if offset_index == 0:
+                location["latitude"] = float(BASE_COORDINATE * (group_index + 1))
+            elif offset_index == 1:
+                location["longitude"] = float(BASE_COORDINATE * (group_index + 1))
+            elif offset_index == 2:
+                location["latitude"] = float(-BASE_COORDINATE * (group_index + 1))
+            elif offset_index == 3:
+                location["longitude"] = float(-BASE_COORDINATE * (group_index + 1))
+
+            charging_spots = []
+            for j in range(NUM_CHARGING_PADS_PER_CHARGING_STATION):
+                charging_spots.append({ "id": j + 1, "status": ChargingStationSpotStatus.AVAILABLE.value, "charging_drone": None })
+
+            self.charging_stations.append({
+                        "id": i + 1,
+                        "location": location,
+                        "status": ChargingStationStatus.AVAILABLE.value,
+                        "spots": charging_spots
+            })
+
         # Dictionary to store charging drones and their battery status
         self.charging_drones = {}
 

@@ -14,7 +14,7 @@ REQUIRED_PENDING_ORDER_ATTRIBUTES = [
 ]
 
 REQUIRED_PENDING_ORDER_DETAILS_ATTRIBUTES = [
-    'customer_name', 'item', 'quantity',
+    'customer_name', 'item', 'quantity', 'weight',
     'dispatcher_location', 'customer_location', 'qrcode'
 ]
 

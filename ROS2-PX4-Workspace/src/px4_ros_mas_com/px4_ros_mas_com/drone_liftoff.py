@@ -1,10 +1,11 @@
 
 import rclpy
-from .droneControl import DroneControl, DroneTargetType
+from .droneControl import DroneControl
 from .droneListener import DroneListener
 from .landPadListener import LandPadListener
 from .chargingSpotListener import ChargingSpotListener
 from .utils import create_lp_cs_locations, allocate_shortest_station
+from common.config import DroneTargetType
 import threading
 
 
