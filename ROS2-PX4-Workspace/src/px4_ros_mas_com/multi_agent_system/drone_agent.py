@@ -43,7 +43,6 @@ class DroneAgent(BaseAgent):
 
     class BatteryHandlingBehaviour(PeriodicBehaviour):
         async def run(self):
-            print(self.agent.battery_percentage)
             # Check if currently charging
             if self.agent.status == DroneStatus.CHARGING.value:
                 # Check if charging is complete

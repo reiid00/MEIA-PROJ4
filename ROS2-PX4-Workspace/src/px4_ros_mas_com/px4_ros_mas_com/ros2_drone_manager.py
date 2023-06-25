@@ -19,7 +19,7 @@ from multi_agent_system.app_agent import AppAgent
 
 def handle_new_drone_target_received(drone_id, target):
     if target["type"] == DroneTargetType.CHARGING_STATION.value:
-        latitude, longitude = get_charging_station_spot_coordinates(target["charging_station_id"], target["spot_id"], CHARGING_STATIONS)
+        latitude, longitude = get_charging_station_spot_coordinates(target["charging_station_id"], target["spot_id"], CS_LISTENERS)
     else:
         latitude, longitude = float(target["location"]["latitude"]), float(target["location"]["longitude"])
 

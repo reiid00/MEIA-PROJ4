@@ -39,7 +39,7 @@ class DroneControl(Node):
         self.response_timer_ = None
         self.needs_allocation = False
 
-        timer_period = 0.1  # per 100ms
+        timer_period = 5e-2  # per 10ms
         self.timer_ = self.create_timer(timer_period, self.timer_callback)
 
         battery_timer_period = 1.0  # per 1s
@@ -106,8 +106,6 @@ class DroneControl(Node):
         if (self.offboard_setpoint_counter_ < 11):
             self.offboard_setpoint_counter_ += 1
 
-    def send_request(self, string):
-        pass
 
     def start_response_timer(self):
         self.response_timer_ = self.create_timer(10, self.response_timer_callback)
@@ -139,14 +137,9 @@ class DroneControl(Node):
         self.needs_allocation = False
         # In case drone is disarmmed
         if self.disarmmed:
-            # self.publish_vehicle_command(VehicleCommand.VEHICLE_CMD_DO_SET_MODE, 1., 6.)
             self.publish_offboard_control_mode()
             self.publish_trajectory_setpoint(self.x,self.y,self.z)
             self.arm()
-    
-
-    def calculate_angle(self):
-        pass
 
     def return_current_pos(self):
         return [self.current_position[1],self.current_position[0] + 3 * self.drone_num, self.current_position[2]]

@@ -27,12 +27,9 @@ def create_lp_cs_locations():
 
 def get_charging_station_spot_coordinates(charging_station_id, spot_id, charging_stations):
     try:
-        if charging_station_id not in charging_stations: raise ValueError("Invalid charging station ID")
-    
-        station_coordinates = charging_stations[charging_station_id]
-        if spot_id not in station_coordinates: raise ValueError("Invalid spot ID for the given charging station")
-        
-        (latitude, longitude) = station_coordinates[spot_id]
+        charging_station = next((charging_station for charging_station in charging_stations if charging_station.charging_station_num == charging_station_id and charging_station.charging_spot_num == spot_id), None)
+        if charging_station == None: raise ValueError("Invalid charging station ID or spot ID for the given charging station. Possibel values: 1 to 4!")
+        (latitude, longitude) = charging_station.get_location()
         return latitude, longitude
     except ValueError as e:
         print("Error:", str(e))
